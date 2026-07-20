@@ -7,7 +7,18 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
+import {
+  Reveal,
+  clipDrop,
+  flipIn,
+  heroRise,
+  hoverLift,
+  hoverPop,
+  rise,
+  riseInView,
+  tapePop,
+} from "@/components/motion";
 import {
   ArrowUpRight,
   Camera,
@@ -140,28 +151,6 @@ function TypewriterText({ words }: { words: string[] }) {
   );
 }
 
-// ── Scroll reveal ──
-function Reveal({
-  children,
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  delay?: number;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-60px" });
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 24 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
 function CornerMarks() {
   const base = "pointer-events-none absolute h-4 w-4 border-neutral-900/40";
   return (
@@ -213,19 +202,26 @@ export default function Home() {
       <main className="mx-auto max-w-2xl pb-14">
         {/* ── Identity card ── */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          {...heroRise}
           className="relative rounded-md border border-neutral-900/10 bg-[#f4f3ec] px-6 py-8 shadow-[0_30px_80px_-24px_rgba(0,0,0,0.55)] sm:px-10 sm:py-10"
           style={DOTTED}
         >
           <CornerMarks />
-          <span className="pointer-events-none absolute -top-3 left-1/2 h-7 w-24 -translate-x-1/2 -rotate-3 bg-stone-300/50 shadow-sm" />
-          <span className="pointer-events-none absolute -left-4 top-1/3 h-6 w-16 -rotate-12 bg-emerald-300/30 shadow-sm" />
-          <span className="pointer-events-none absolute -right-3 bottom-12 h-6 w-16 rotate-6 bg-amber-200/40 shadow-sm" />
+          <motion.span
+            {...tapePop(-3, 0.9)}
+            className="pointer-events-none absolute -top-3 left-1/2 h-7 w-24 -translate-x-1/2 bg-stone-300/50 shadow-sm"
+          />
+          <motion.span
+            {...tapePop(-12, 1.05)}
+            className="pointer-events-none absolute -left-4 top-1/3 h-6 w-16 bg-emerald-300/30 shadow-sm"
+          />
+          <motion.span
+            {...tapePop(6, 1.2)}
+            className="pointer-events-none absolute -right-3 bottom-12 h-6 w-16 bg-amber-200/40 shadow-sm"
+          />
 
           <div className="flex items-start justify-between gap-4">
-            <div className="pt-1">
+            <motion.div {...rise(0.35)} className="pt-1">
               <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-neutral-500">
                 Studio:
               </p>
@@ -237,13 +233,18 @@ export default function Home() {
               <p className="mt-3 font-mono text-[13px] text-neutral-600">
                 <TypewriterText words={roles} />
               </p>
-            </div>
+            </motion.div>
 
-            <div className="relative w-28 shrink-0 sm:w-36">
-              <Paperclip
-                className="absolute -top-3 right-4 z-10 h-7 w-7 -rotate-[20deg] text-neutral-400"
-                strokeWidth={1.5}
-              />
+            <motion.div {...flipIn(0.7)} className="relative w-28 shrink-0 sm:w-36">
+              <motion.span
+                {...clipDrop(1.35)}
+                className="absolute -top-3 right-4 z-10"
+              >
+                <Paperclip
+                  className="h-7 w-7 -rotate-[20deg] text-neutral-400"
+                  strokeWidth={1.5}
+                />
+              </motion.span>
               <div className="overflow-hidden rounded-sm border border-neutral-900/10 bg-white shadow-sm">
                 <img
                   src={PROFILE_IMG}
@@ -264,29 +265,35 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
 
-          <p className="mt-6 max-w-md font-mono text-[13px] leading-relaxed text-neutral-700">
+          <motion.p
+            {...rise(0.5)}
+            className="mt-6 max-w-md font-mono text-[13px] leading-relaxed text-neutral-700"
+          >
             Photography, videography, and cinematography — capturing moments
             that tell your story. Bold, authentic visuals for portraits,
             weddings, events, and brands across the UK.
-          </p>
+          </motion.p>
 
-          <div className="mt-6 flex flex-wrap gap-2">
-            <a
+          <motion.div {...rise(0.65)} className="mt-6 flex flex-wrap gap-2">
+            <motion.a
+              {...hoverPop}
               href="/portfolio"
               className="rounded-md bg-neutral-900 px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-wide text-white transition-opacity hover:opacity-90"
             >
               View Portfolio
-            </a>
-            <a
+            </motion.a>
+            <motion.a
+              {...hoverPop}
               href="mailto:contact@shotbygafar.com"
               className="rounded-md border border-neutral-900/20 bg-white px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-wide text-neutral-900 transition-colors hover:bg-neutral-50"
             >
               Book a Shoot
-            </a>
-            <a
+            </motion.a>
+            <motion.a
+              {...hoverPop}
               href="https://www.instagram.com/shot.by.gafar/"
               target="_blank"
               rel="noreferrer"
@@ -294,23 +301,26 @@ export default function Home() {
             >
               <InstagramIcon />
               @shot.by.gafar
-            </a>
-          </div>
+            </motion.a>
+          </motion.div>
 
           <div className="mt-8 grid grid-cols-3 gap-3 border-t border-dashed border-neutral-900/15 pt-5">
-            {stats.map(s => (
-              <div key={s.label}>
+            {stats.map((s, i) => (
+              <motion.div {...rise(0.8 + i * 0.1)} key={s.label}>
                 <p className="font-display text-2xl font-extrabold tracking-tight text-neutral-900">
                   {s.value}
                 </p>
                 <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-neutral-500">
                   {s.label}
                 </p>
-              </div>
+              </motion.div>
             ))}
           </div>
 
-          <div className="mt-6 flex items-center justify-between border-t border-dashed border-neutral-900/15 pt-3">
+          <motion.div
+            {...rise(1)}
+            className="mt-6 flex items-center justify-between border-t border-dashed border-neutral-900/15 pt-3"
+          >
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-500">
               <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
               Booking now · United Kingdom
@@ -318,14 +328,15 @@ export default function Home() {
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-400">
               Est. Gaffy Studios
             </p>
-          </div>
+          </motion.div>
         </motion.div>
 
         {/* ── What we shoot ── */}
         <SectionCard id="work" label="Work:" title="What we shoot">
           <div className="grid gap-3 sm:grid-cols-2">
-            {shoots.map(s => (
-              <div
+            {shoots.map((s, i) => (
+              <motion.div
+                {...riseInView(i * 0.08)}
                 key={s.name}
                 className="rounded-md border border-neutral-900/10 bg-white p-5 shadow-sm"
               >
@@ -348,7 +359,7 @@ export default function Home() {
                     </span>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </SectionCard>
@@ -357,7 +368,8 @@ export default function Home() {
         <SectionCard id="services" label="Services:" title="What we do">
           <div className="space-y-6">
             {services.map((s, i) => (
-              <div
+              <motion.div
+                {...riseInView(i * 0.12)}
                 key={s.title}
                 className={
                   i > 0
@@ -378,7 +390,7 @@ export default function Home() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </SectionCard>
@@ -417,22 +429,25 @@ export default function Home() {
           </div>
 
           <div className="mt-5 flex flex-wrap gap-2">
-            <a
+            <motion.a
+              {...hoverPop}
               href="mailto:contact@shotbygafar.com"
               className="flex items-center gap-2 rounded-md bg-neutral-900 px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wide text-white transition-opacity hover:opacity-90"
             >
               <Mail className="h-4 w-4" />
               Email Us
-            </a>
-            <a
+            </motion.a>
+            <motion.a
+              {...hoverPop}
               href="https://wa.me/447882655541"
               target="_blank"
               rel="noreferrer"
               className="flex items-center gap-2 rounded-md border border-neutral-900/20 bg-white px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wide text-neutral-900 transition-colors hover:bg-neutral-50"
             >
               WhatsApp
-            </a>
-            <a
+            </motion.a>
+            <motion.a
+              {...hoverPop}
               href="https://www.instagram.com/shot.by.gafar/"
               target="_blank"
               rel="noreferrer"
@@ -440,13 +455,14 @@ export default function Home() {
             >
               <InstagramIcon />
               Instagram
-            </a>
+            </motion.a>
           </div>
         </SectionCard>
 
         {/* ── Parent studio ── */}
         <Reveal>
-          <a
+          <motion.a
+            {...hoverLift}
             href="https://gaffystudios.com"
             target="_blank"
             rel="noreferrer"
@@ -466,7 +482,7 @@ export default function Home() {
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/25 text-white transition-colors group-hover:bg-white group-hover:text-neutral-900">
               <ArrowUpRight className="h-4 w-4" />
             </span>
-          </a>
+          </motion.a>
         </Reveal>
 
         <SiteFooter />

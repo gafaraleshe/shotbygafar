@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, DM_Serif_Display, Geist_Mono, Inter } from "next/font/google";
+import { MotionProvider } from "@/components/motion";
 import "./globals.css";
 
 const inter = Inter({
@@ -59,7 +60,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${archivo.variable} ${dmSerif.variable} ${geistMono.variable}`}
       >
-        {children}
+        <MotionProvider>{children}</MotionProvider>
       </body>
     </html>
   );
