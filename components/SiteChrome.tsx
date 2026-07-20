@@ -1,8 +1,13 @@
+"use client";
+
 /*
  * Shared top bar + footer for every page.
  * Same filing-card chrome as gaffystudios.com / gafaraleshe.com, on the
  * black graph-paper canvas — tuned for the SHOTBYGAFAR photography brand.
  */
+
+import { motion } from "framer-motion";
+import { fadeIn } from "@/components/motion";
 
 const NAV = [
   { label: "Portfolio", href: "/portfolio" },
@@ -11,7 +16,10 @@ const NAV = [
 
 export function SiteHeader({ active }: { active?: string }) {
   return (
-    <header className="mx-auto mb-8 flex max-w-2xl items-center justify-between sm:mb-10">
+    <motion.header
+      {...fadeIn(0.15)}
+      className="mx-auto mb-8 flex max-w-2xl items-center justify-between sm:mb-10"
+    >
       <a
         href="/"
         className="font-mono text-sm font-semibold uppercase tracking-[0.2em] text-white"
@@ -35,7 +43,7 @@ export function SiteHeader({ active }: { active?: string }) {
           Links ↗
         </a>
       </div>
-    </header>
+    </motion.header>
   );
 }
 
