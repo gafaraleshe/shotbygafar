@@ -15,9 +15,54 @@ the SHOTBYGAFAR photography brand, with an embedded Instagram section for
 | Route        | Purpose                                                   |
 | ------------ | --------------------------------------------------------- |
 | `/`          | Home — identity, what we shoot, services, Instagram, contact |
+| `/services`  | Disciplines, what we shoot, and how a shoot works         |
+| `/pricing`   | Packages, add-ons, and rates (links through to booking)   |
+| `/booking`   | Booking enquiry form (date, shoot type, package, details) |
+| `/contact`   | Contact form + direct channels (email, phone, WhatsApp)   |
 | `/portfolio` | Photography & film work (portraits, weddings, events)     |
 | `/faq`       | Bookings, pricing, delivery                               |
 | `/links`     | Every link — socials, booking, portfolio, parent studio   |
+
+## Booking & contact forms
+
+`/booking` and `/contact` post to the `/api/booking` and `/api/contact`
+routes. Delivery is **best-effort and self-contained**:
+
+- **With email configured** — set `RESEND_API_KEY` (and optionally
+  `ENQUIRY_TO` / `ENQUIRY_FROM`) and enquiries are emailed via
+  [Resend](https://resend.com); the visitor sees a confirmation.
+- **Without it** — the route still validates and responds, and the form
+  falls back to a pre-filled **mailto / WhatsApp** message so no enquiry is
+  lost. Nothing is required to run the site.
+
+| Env var          | Default                         | Purpose                    |
+| ---------------- | ------------------------------- | -------------------------- |
+| `RESEND_API_KEY` | —                               | Enables email delivery     |
+| `ENQUIRY_TO`     | `contact@shotbygafar.com`       | Where enquiries are sent   |
+| `ENQUIRY_FROM`   | `SHOTBYGAFAR <onboarding@resend.dev>` | Verified sender      |
+
+Edit packages/rates in `app/pricing/page.tsx` and services in
+`app/services/page.tsx`.
+
+## Hermite Flow (bookings → invoices + CRM)
+
+Booking enquiries are also forwarded to **Hermite Flow** (Gaffy Studios' CRM +
+invoicing, at flow.hermitelabs.com). When configured, each booking creates a
+CRM record, a client, and a draft invoice from the package price — and can email
+it via Resend. Delivery is best-effort: if Hermite Flow is down, the enquiry
+email still goes out. See `lib/hermite.ts`.
+
+Manage the pipeline in-house at **`/studio`** (a read-only CRM backed by the
+Hermite Flow API; the API key stays server-side behind `/api/studio`).
+
+| Env var                 | Default | Purpose                                                    |
+| ----------------------- | ------- | ---------------------------------------------------------- |
+| `HERMITE_FLOW_API_URL`  | —       | Hermite Flow origin, e.g. `https://flow.hermitelabs.com`   |
+| `HERMITE_FLOW_API_KEY`  | —       | Owner API key (`ifk_live_…`) from Settings → Integrations  |
+| `HERMITE_FLOW_AUTO_SEND`| `false` | `true` to email the invoice on booking (else draft only)   |
+| `STUDIO_TOKEN`          | —       | Access code that unlocks `/studio` (required to enable it) |
+
+> Legacy `INVOICEFLOW_API_URL` / `INVOICEFLOW_API_KEY` are accepted as fallbacks.
 
 ## Instagram embed
 
