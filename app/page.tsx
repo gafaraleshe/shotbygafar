@@ -291,7 +291,7 @@ export default function Home() {
             </motion.a>
             <motion.a
               {...hoverPop}
-              href="mailto:contact@shotbygafar.com"
+              href="/booking"
               className="rounded-md border border-neutral-900/20 bg-white px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-wide text-neutral-900 transition-colors hover:bg-neutral-50"
             >
               Book a Shoot
