@@ -7,7 +7,7 @@
  */
 
 import { motion } from "framer-motion";
-import { fadeIn } from "@/components/motion";
+import { NameReveal, fadeIn } from "@/components/motion";
 
 const NAV = [
   { label: "Portfolio", href: "/portfolio" },
@@ -24,7 +24,7 @@ export function SiteHeader({ active }: { active?: string }) {
         href="/"
         className="font-mono text-sm font-semibold uppercase tracking-[0.2em] text-white"
       >
-        SHOTBYGAFAR
+        <NameReveal lines={["SHOTBYGAFAR"]} delay={1.3} stagger={0.04} blur={4} />
       </a>
       <div className="flex items-center gap-1">
         {NAV.filter(n => n.href !== active).map(n => (
