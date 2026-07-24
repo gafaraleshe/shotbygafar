@@ -44,6 +44,26 @@ routes. Delivery is **best-effort and self-contained**:
 Edit packages/rates in `app/pricing/page.tsx` and services in
 `app/services/page.tsx`.
 
+## Hermite Flow (bookings → invoices + CRM)
+
+Booking enquiries are also forwarded to **Hermite Flow** (Gaffy Studios' CRM +
+invoicing, at flow.hermitelabs.com). When configured, each booking creates a
+CRM record, a client, and a draft invoice from the package price — and can email
+it via Resend. Delivery is best-effort: if Hermite Flow is down, the enquiry
+email still goes out. See `lib/hermite.ts`.
+
+Manage the pipeline in-house at **`/studio`** (a read-only CRM backed by the
+Hermite Flow API; the API key stays server-side behind `/api/studio`).
+
+| Env var                 | Default | Purpose                                                    |
+| ----------------------- | ------- | ---------------------------------------------------------- |
+| `HERMITE_FLOW_API_URL`  | —       | Hermite Flow origin, e.g. `https://flow.hermitelabs.com`   |
+| `HERMITE_FLOW_API_KEY`  | —       | Owner API key (`ifk_live_…`) from Settings → Integrations  |
+| `HERMITE_FLOW_AUTO_SEND`| `false` | `true` to email the invoice on booking (else draft only)   |
+| `STUDIO_TOKEN`          | —       | Access code that unlocks `/studio` (required to enable it) |
+
+> Legacy `INVOICEFLOW_API_URL` / `INVOICEFLOW_API_KEY` are accepted as fallbacks.
+
 ## Instagram embed
 
 The home page renders an Instagram section powered by

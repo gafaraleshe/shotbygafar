@@ -3,6 +3,7 @@ import {
   sendEnquiry,
   type FieldSpec,
 } from "@/lib/enquiries";
+import { createHermiteBooking } from "@/lib/hermite";
 
 // Booking enquiries are personal data — never cache the response.
 export const dynamic = "force-dynamic";
@@ -47,11 +48,31 @@ export async function POST(request: Request) {
   ];
   const text = lines.join("\n");
 
-  const { delivered } = await sendEnquiry({
-    subject: `Booking enquiry — ${values.shootType} (${values.name})`,
-    text,
-    replyTo: values.email,
-  });
+  // Fire the enquiry email and the Hermite Flow CRM/invoice sync together. Hermite Flow is
+  // best-effort — a booking is never lost if the billing backend is down.
+  const [{ delivered }, hermite] = await Promise.all([
+    sendEnquiry({
+      subject: `Booking enquiry — ${values.shootType} (${values.name})`,
+      text,
+      replyTo: values.email,
+    }),
+    createHermiteBooking({
+      name: values.name,
+      email: values.email,
+      phone: values.phone,
+      shootType: values.shootType,
+      package: values.package,
+      date: values.date,
+      location: values.location,
+      message: values.message,
+    }),
+  ]);
 
-  return Response.json({ ok: true, delivered });
+  return Response.json({
+    ok: true,
+    delivered,
+    // Surface (non-sensitive) CRM outcome for observability.
+    booked: hermite.ok,
+    invoiced: Boolean(hermite.invoiceNumber),
+  });
 }
