@@ -9,6 +9,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
+  NameReveal,
   Reveal,
   clipDrop,
   flipIn,
@@ -226,9 +227,7 @@ export default function Home() {
                 Studio:
               </p>
               <h1 className="mt-1 font-display text-4xl font-extrabold uppercase leading-[0.9] tracking-tight text-neutral-900 sm:text-6xl">
-                Shot
-                <br />
-                By Gafar
+                <NameReveal lines={["Shot", "By Gafar"]} />
               </h1>
               <p className="mt-3 font-mono text-[13px] text-neutral-600">
                 <TypewriterText words={roles} />
