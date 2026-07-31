@@ -5,6 +5,7 @@
  */
 
 import { motion } from "framer-motion";
+import { heroRise, riseInView } from "@/components/motion";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 
 const DOTTED = {
@@ -46,9 +47,7 @@ export default function FAQ() {
 
       <main className="mx-auto max-w-2xl pb-14">
         <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          {...heroRise}
           className="relative rounded-md border border-neutral-900/10 bg-[#f4f3ec] px-6 py-8 shadow-[0_30px_80px_-24px_rgba(0,0,0,0.55)] sm:px-10 sm:py-10"
           style={DOTTED}
         >
@@ -67,10 +66,8 @@ export default function FAQ() {
         <div className="mt-4 space-y-3">
           {faqs.map((f, i) => (
             <motion.div
+              {...riseInView(Math.min(i * 0.06, 0.3))}
               key={f.q}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.05 * i }}
               className="rounded-md border border-neutral-900/10 bg-[#f4f3ec] px-6 py-5 shadow-sm"
               style={DOTTED}
             >

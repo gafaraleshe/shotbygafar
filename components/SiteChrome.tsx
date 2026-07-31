@@ -1,8 +1,13 @@
+"use client";
+
 /*
  * Shared top bar + footer for every page.
  * Same filing-card chrome as gaffystudios.com / gafaraleshe.com, on the
  * black graph-paper canvas — tuned for the SHOTBYGAFAR photography brand.
  */
+
+import { motion } from "framer-motion";
+import { NameReveal, fadeIn } from "@/components/motion";
 
 const NAV = [
   { label: "Services", href: "/services" },
@@ -14,12 +19,15 @@ const NAV = [
 
 export function SiteHeader({ active }: { active?: string }) {
   return (
-    <header className="mx-auto mb-8 flex max-w-2xl flex-wrap items-center justify-between gap-x-2 gap-y-2 sm:mb-10">
+    <motion.header
+      {...fadeIn(0.15)}
+      className="mx-auto mb-8 flex max-w-2xl flex-wrap items-center justify-between gap-x-2 gap-y-2 sm:mb-10"
+    >
       <a
         href="/"
         className="font-mono text-sm font-semibold uppercase tracking-[0.2em] text-white"
       >
-        SHOTBYGAFAR
+        <NameReveal lines={["SHOTBYGAFAR"]} delay={1.3} stagger={0.04} blur={4} />
       </a>
       <nav className="flex flex-wrap items-center justify-end gap-x-1 gap-y-1">
         {NAV.filter(n => n.href !== active).map(n => (
@@ -39,7 +47,7 @@ export function SiteHeader({ active }: { active?: string }) {
           Book ↗
         </a>
       </nav>
-    </header>
+    </motion.header>
   );
 }
 

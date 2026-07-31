@@ -7,6 +7,18 @@
  */
 
 import { motion } from "framer-motion";
+import {
+  NameReveal,
+  chipPop,
+  clipDrop,
+  flipIn,
+  heroRise,
+  hoverLift,
+  photoHover,
+  rise,
+  riseInView,
+  tapePop,
+} from "@/components/motion";
 import { ArrowUpRight, Paperclip } from "lucide-react";
 import {
   InstagramIcon,
@@ -127,9 +139,7 @@ export default function Links() {
       <main className="mx-auto max-w-2xl">
         {/* ── Index card ── */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          {...heroRise}
           className="relative rounded-md border border-neutral-900/10 bg-[#f4f3ec] px-6 py-8 shadow-[0_30px_80px_-24px_rgba(0,0,0,0.55)] sm:px-10 sm:py-10"
           style={{
             backgroundImage:
@@ -139,32 +149,48 @@ export default function Links() {
         >
           <CornerMarks />
 
-          <span className="pointer-events-none absolute -top-3 left-1/2 h-7 w-24 -translate-x-1/2 -rotate-3 bg-stone-300/50 shadow-sm" />
-          <span className="pointer-events-none absolute -left-4 top-1/3 h-6 w-16 -rotate-12 bg-emerald-300/30 shadow-sm" />
-          <span className="pointer-events-none absolute -right-3 bottom-12 h-6 w-16 rotate-6 bg-amber-200/40 shadow-sm" />
+          <motion.span
+            {...tapePop(-3, 0.9)}
+            className="pointer-events-none absolute -top-3 left-1/2 h-7 w-24 -translate-x-1/2 bg-stone-300/50 shadow-sm"
+          />
+          <motion.span
+            {...tapePop(-12, 1.05)}
+            className="pointer-events-none absolute -left-4 top-1/3 h-6 w-16 bg-emerald-300/30 shadow-sm"
+          />
+          <motion.span
+            {...tapePop(6, 1.2)}
+            className="pointer-events-none absolute -right-3 bottom-12 h-6 w-16 bg-amber-200/40 shadow-sm"
+          />
 
           <div className="flex items-start justify-between gap-4">
-            <div className="pt-1">
+            <motion.div {...rise(0.35)} className="pt-1">
               <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-neutral-500">
                 Studio:
               </p>
               <h1 className="mt-1 font-display text-4xl font-extrabold uppercase leading-[0.9] tracking-tight text-neutral-900 sm:text-6xl">
-                Shot
-                <br />
-                By Gafar
+                <NameReveal lines={["Shot", "By Gafar"]} />
               </h1>
-            </div>
+            </motion.div>
 
-            <div className="relative w-28 shrink-0 sm:w-36">
-              <Paperclip
-                className="absolute -top-3 right-4 z-10 h-7 w-7 -rotate-[20deg] text-neutral-400"
-                strokeWidth={1.5}
-              />
+            <motion.div
+              {...flipIn(0.7)}
+              {...photoHover}
+              className="group relative w-28 shrink-0 sm:w-36"
+            >
+              <motion.span
+                {...clipDrop(1.35)}
+                className="absolute -top-3 right-4 z-10"
+              >
+                <Paperclip
+                  className="h-7 w-7 -rotate-[20deg] text-neutral-400"
+                  strokeWidth={1.5}
+                />
+              </motion.span>
               <div className="overflow-hidden rounded-sm border border-neutral-900/10 bg-white shadow-sm">
                 <img
                   src={PROFILE_IMG}
                   alt="Gafar Aleshe — SHOTBYGAFAR"
-                  className="aspect-square w-full object-cover"
+                  className="aspect-square w-full object-cover grayscale transition duration-500 group-hover:grayscale-0"
                 />
                 <div className="border-t border-neutral-900/10 px-2 py-1.5">
                   <p className="font-mono text-[9px] font-semibold uppercase leading-tight tracking-wide text-neutral-900">
@@ -178,29 +204,38 @@ export default function Links() {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
 
-          <p className="mt-6 max-w-md font-mono text-[13px] leading-relaxed text-neutral-700">
+          <motion.p
+            {...rise(0.5)}
+            className="mt-6 max-w-md font-mono text-[13px] leading-relaxed text-neutral-700"
+          >
             Photography · Videography · Cinematography. Capturing moments that
             tell your story across the UK. Every link, in one place.
-          </p>
+          </motion.p>
 
-          <div className="mt-8 flex items-center justify-end border-t border-dashed border-neutral-900/15 pt-3">
+          <motion.div
+            {...rise(0.65)}
+            className="mt-8 flex items-center justify-end border-t border-dashed border-neutral-900/15 pt-3"
+          >
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-500">
               Made with <span className="text-red-500">♥</span> in the UK
             </p>
-          </div>
+          </motion.div>
         </motion.div>
 
         {/* ── Social bar ── */}
         <div className="mt-4 grid grid-cols-5 overflow-hidden rounded-md border-l border-t border-neutral-900/10 bg-[#f4f3ec]">
-          {socials.map(s => {
+          {socials.map((s, i) => {
             const Icon = s.Icon;
             const isExternal =
               s.href.startsWith("http") || s.href.startsWith("mailto");
             return (
-              <a
+              <motion.a
+                {...chipPop(0.4 + i * 0.05)}
+                whileHover={{ scale: 1.12 }}
+                whileTap={{ scale: 0.9 }}
                 key={s.label}
                 href={s.href}
                 target={isExternal ? "_blank" : undefined}
@@ -209,7 +244,7 @@ export default function Links() {
                 className="flex aspect-square items-center justify-center border-b border-r border-neutral-900/10 text-neutral-900 transition-colors hover:bg-neutral-900 hover:text-white"
               >
                 <Icon />
-              </a>
+              </motion.a>
             );
           })}
         </div>
@@ -222,13 +257,12 @@ export default function Links() {
               f.href.startsWith("http") || f.href.startsWith("mailto");
             return (
               <motion.a
+                {...riseInView(Math.min(i * 0.07, 0.35))}
+                {...hoverLift}
                 key={f.label}
                 href={f.href}
                 target={isExternal ? "_blank" : undefined}
                 rel={isExternal ? "noreferrer" : undefined}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.04 * i }}
                 className="group flex items-stretch overflow-hidden rounded-md border border-neutral-900/10 bg-[#f4f3ec] shadow-sm transition-shadow hover:shadow-md"
               >
                 <div className="flex w-20 shrink-0 items-center justify-center bg-neutral-900 text-white sm:w-24">
