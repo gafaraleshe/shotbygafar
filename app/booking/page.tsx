@@ -22,7 +22,7 @@ import {
 } from "@/components/FormControls";
 
 const DOTTED = {
-  backgroundImage: "radial-gradient(rgba(0,0,0,0.07) 1px, transparent 1px)",
+  backgroundImage: "radial-gradient(var(--paper-dot) 1px, transparent 1px)",
   backgroundSize: "16px 16px",
 } as const;
 
@@ -163,16 +163,16 @@ function BookingForm() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="relative rounded-md border border-neutral-900/10 bg-[#f4f3ec] px-6 py-8 shadow-[0_30px_80px_-24px_rgba(0,0,0,0.55)] sm:px-10 sm:py-10"
+          className="relative rounded-md border border-ink/10 bg-paper px-6 py-8 shadow-[0_30px_80px_-24px_rgba(0,0,0,0.55)] sm:px-10 sm:py-10"
           style={DOTTED}
         >
-          <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-neutral-500">
+          <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-ink-muted">
             Booking:
           </p>
-          <h1 className="mt-1 font-display text-4xl font-extrabold uppercase leading-[0.95] tracking-tight text-neutral-900 sm:text-5xl">
+          <h1 className="mt-1 font-display text-4xl font-extrabold uppercase leading-[0.95] tracking-tight text-ink sm:text-5xl">
             Book a shoot
           </h1>
-          <p className="mt-4 max-w-md font-mono text-[13px] leading-relaxed text-neutral-700">
+          <p className="mt-4 max-w-md font-mono text-[13px] leading-relaxed text-ink-soft">
             Tell us the date, location, and what you have in mind. We&apos;ll
             confirm availability and send a tailored quote — usually within a
             day.
@@ -184,18 +184,18 @@ function BookingForm() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="relative mt-4 rounded-md border border-neutral-900/10 bg-[#f4f3ec] px-6 py-7 shadow-[0_30px_80px_-24px_rgba(0,0,0,0.45)] sm:px-8 sm:py-9"
+          className="relative mt-4 rounded-md border border-ink/10 bg-paper px-6 py-7 shadow-[0_30px_80px_-24px_rgba(0,0,0,0.45)] sm:px-8 sm:py-9"
           style={DOTTED}
         >
           {status === "done" ? (
             <div className="py-4 text-center">
-              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-neutral-900 text-white">
+              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-ink text-paper">
                 <Check className="h-6 w-6" />
               </span>
-              <h2 className="mt-4 font-display text-2xl font-extrabold uppercase tracking-tight text-neutral-900">
+              <h2 className="mt-4 font-display text-2xl font-extrabold uppercase tracking-tight text-ink">
                 Request sent
               </h2>
-              <p className="mx-auto mt-2 max-w-sm font-mono text-[12px] leading-relaxed text-neutral-600">
+              <p className="mx-auto mt-2 max-w-sm font-mono text-[12px] leading-relaxed text-ink-dim">
                 Thanks {form.name.split(" ")[0] || "there"} — your enquiry is in.
                 We&apos;ll reply to {form.email} within a day to confirm
                 availability.
@@ -203,13 +203,13 @@ function BookingForm() {
               <div className="mt-5 flex flex-wrap justify-center gap-2">
                 <a
                   href="/pricing"
-                  className="rounded-md border border-neutral-900/20 bg-white px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wide text-neutral-900 transition-colors hover:bg-neutral-50"
+                  className="rounded-md border border-ink/20 bg-tile px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wide text-ink transition-colors hover:bg-tile-hover"
                 >
                   View Pricing
                 </a>
                 <a
                   href="/portfolio"
-                  className="rounded-md border border-neutral-900/20 bg-white px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wide text-neutral-900 transition-colors hover:bg-neutral-50"
+                  className="rounded-md border border-ink/20 bg-tile px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wide text-ink transition-colors hover:bg-tile-hover"
                 >
                   See Portfolio
                 </a>
@@ -217,20 +217,20 @@ function BookingForm() {
             </div>
           ) : status === "fallback" ? (
             <div className="py-4 text-center">
-              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-neutral-900 text-white">
+              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-ink text-paper">
                 <Mail className="h-6 w-6" />
               </span>
-              <h2 className="mt-4 font-display text-2xl font-extrabold uppercase tracking-tight text-neutral-900">
+              <h2 className="mt-4 font-display text-2xl font-extrabold uppercase tracking-tight text-ink">
                 One last step
               </h2>
-              <p className="mx-auto mt-2 max-w-sm font-mono text-[12px] leading-relaxed text-neutral-600">
+              <p className="mx-auto mt-2 max-w-sm font-mono text-[12px] leading-relaxed text-ink-dim">
                 Your details are ready — send them straight to us by email or
                 WhatsApp and we&apos;ll take it from there.
               </p>
               <div className="mt-5 flex flex-wrap justify-center gap-2">
                 <a
                   href={mailtoHref}
-                  className="rounded-md bg-neutral-900 px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wide text-white transition-opacity hover:opacity-90"
+                  className="rounded-md bg-ink px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wide text-paper transition-opacity hover:opacity-90"
                 >
                   Send by Email
                 </a>
@@ -238,7 +238,7 @@ function BookingForm() {
                   href={whatsappHref}
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-md border border-neutral-900/20 bg-white px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wide text-neutral-900 transition-colors hover:bg-neutral-50"
+                  className="rounded-md border border-ink/20 bg-tile px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wide text-ink transition-colors hover:bg-tile-hover"
                 >
                   Send by WhatsApp
                 </a>
@@ -246,10 +246,10 @@ function BookingForm() {
             </div>
           ) : (
             <form onSubmit={onSubmit} noValidate>
-              <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-neutral-500">
+              <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-ink-muted">
                 Enquiry:
               </p>
-              <h2 className="mb-6 mt-1 flex items-center gap-2 font-display text-2xl font-extrabold uppercase tracking-tight text-neutral-900 sm:text-3xl">
+              <h2 className="mb-6 mt-1 flex items-center gap-2 font-display text-2xl font-extrabold uppercase tracking-tight text-ink sm:text-3xl">
                 <CalendarCheck className="h-6 w-6" />
                 Your details
               </h2>
@@ -373,11 +373,11 @@ function BookingForm() {
                 <button
                   type="submit"
                   disabled={status === "submitting"}
-                  className="rounded-md bg-neutral-900 px-5 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wide text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+                  className="rounded-md bg-ink px-5 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wide text-paper transition-opacity hover:opacity-90 disabled:opacity-60"
                 >
                   {status === "submitting" ? "Sending…" : "Send Booking Request"}
                 </button>
-                <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-neutral-500">
+                <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-ink-muted">
                   Or email {CONTACT_EMAIL}
                 </p>
               </div>

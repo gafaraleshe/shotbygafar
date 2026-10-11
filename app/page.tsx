@@ -1,160 +1,237 @@
 "use client";
 
 /*
- * Home — SHOTBYGAFAR photography brand on the black graph-paper canvas.
- * Index-card / filing aesthetic: dotted paper cards, mono labels, display
- * headings. Identity card → what we shoot → services → Instagram → contact.
+ * Home — laid out like gafaraleshe.com (after pysavant.cv), tuned for the
+ * photography side: one narrow column on a paper sheet over the graph-paper
+ * grid, with a name and profile row, a few plain paragraphs, then quiet
+ * labelled sections. Where the code site shows commits and skills, this one
+ * shows the Instagram grid, how a shoot runs, what's covered, the work and
+ * the packages.
  */
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, type MotionProps } from "framer-motion";
 import {
-  NameReveal,
-  Reveal,
-  clipDrop,
-  flipIn,
-  heroRise,
-  hoverLift,
-  photoHover,
-  hoverPop,
-  rise,
-  riseInView,
-  tapePop,
-} from "@/components/motion";
-import {
-  ArrowUpRight,
+  Aperture,
+  CalendarCheck,
   Camera,
   Clapperboard,
   Film,
-  Mail,
-  MapPin,
-  Paperclip,
-  Phone,
+  Lightbulb,
+  Megaphone,
+  Music,
+  Package,
+  Palette,
+  PartyPopper,
+  Smartphone,
+  Trophy,
+  User,
+  Video,
+  type LucideIcon,
 } from "lucide-react";
-import { InstagramIcon } from "@/components/LinkIcons";
-import { InstagramFeed } from "@/components/InstagramFeed";
+import { NameReveal, Reveal } from "@/components/motion";
+import {
+  InstagramGlyph,
+  MailGlyph,
+  TikTokGlyph,
+  WhatsAppGlyph,
+  YouTubeGlyph,
+} from "@/components/BrandIcons";
+import { INSTAGRAM_PROFILE, InstagramFeed } from "@/components/InstagramFeed";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 
 const PROFILE_IMG = "/assets/gafar-profile.jpg";
+const EMAIL = "contact@shotbygafar.com";
+const PHONE = "+44 788 265 5541";
+const PHONE_HREF = "tel:+447882655541";
+const WHATSAPP_URL = "https://wa.me/447882655541";
+const WIDTH = "max-w-[760px]";
 
 const DOTTED = {
-  backgroundImage: "radial-gradient(rgba(0,0,0,0.07) 1px, transparent 1px)",
+  backgroundImage: "radial-gradient(var(--paper-dot) 1px, transparent 1px)",
   backgroundSize: "16px 16px",
 } as const;
 
-// ── Data (from shotbygafar.com) ──
-const roles = [
-  "Photography",
-  "Videography",
-  "Cinematography",
-  "Wedding Films",
-  "Brand Content",
-];
+// pysavant's entrance: a short, soft rise rather than the card bounces.
+const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
+const softRise = (delay = 0): MotionProps => ({
+  initial: { opacity: 0, y: 12 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "tween", duration: 0.55, delay, ease: EASE_OUT },
+  },
+});
 
-const shoots = [
-  {
-    name: "Portraits",
-    subtitle: "People · Studio · Lifestyle",
-    description:
-      "Bold, authentic portraits that feel like you — studio, on-location, and lifestyle sessions for individuals, creatives, and brands.",
-    tags: ["Studio", "On-Location", "Editorial"],
-  },
-  {
-    name: "Weddings",
-    subtitle: "Cinematic Films · Photography",
-    description:
-      "Cinematic wedding films and photography that capture the day as it felt — vows, first dances, and the in-between moments, edited to a story.",
-    tags: ["Films", "Photography", "Highlights"],
-  },
-  {
-    name: "Events",
-    subtitle: "Coverage · Highlight Reels",
-    description:
-      "Full coverage for parties, conferences, and live shows — delivered as photo galleries and highlight reels built to relive the night.",
-    tags: ["Live Shows", "Parties", "Corporate"],
-  },
-  {
-    name: "Brand Content",
-    subtitle: "Product · Promo · Social",
-    description:
-      "Product films, promos, and social-first content for brands and small businesses — striking visuals built to convert.",
-    tags: ["Product", "Promo", "Social"],
-  },
-];
+// ── Data ──
 
-const services = [
+const profiles = [
   {
-    Icon: Camera,
-    title: "Photography",
-    description:
-      "Portraits, products, weddings, and events with a cinematic, story-first approach — shot and retouched in-house.",
+    label: "Instagram",
+    href: "https://www.instagram.com/shot.by.gafar/",
+    Icon: InstagramGlyph,
   },
   {
-    Icon: Film,
-    title: "Videography",
-    description:
-      "Brand films, event coverage, and social content — filmed and edited end to end, delivered ready to post.",
+    label: "TikTok",
+    href: "https://tiktok.com/@gafaraleshe",
+    Icon: TikTokGlyph,
   },
   {
-    Icon: Clapperboard,
-    title: "Cinematography",
-    description:
-      "Cinematic direction, lighting, and colour grading for weddings, music videos, and creative films.",
+    label: "YouTube",
+    href: "https://www.youtube.com/@gafaraleshe",
+    Icon: YouTubeGlyph,
   },
+  { label: "WhatsApp", href: WHATSAPP_URL, Icon: WhatsAppGlyph },
+  { label: "Email", href: `mailto:${EMAIL}`, Icon: MailGlyph },
 ];
 
 const stats = [
-  { value: "25+", label: "Clients" },
-  { value: "UK", label: "Based & Mobile" },
-  { value: "7yr+", label: "Behind the Lens" },
+  { value: "25+", label: "clients" },
+  { value: "UK", label: "based & mobile" },
+  { value: "7yr+", label: "behind the lens" },
 ];
 
-// ── Typewriter ──
-function TypewriterText({ words }: { words: string[] }) {
-  const [wordIndex, setWordIndex] = useState(0);
-  const [text, setText] = useState("");
-  const [isDeleting, setIsDeleting] = useState(false);
-  const timerRef = useRef<number | null>(null);
+const process = [
+  {
+    title: "Enquire",
+    detail: "Date, location and the idea. Availability confirmed within a day.",
+  },
+  {
+    title: "Plan",
+    detail: "Package, shot list and timeline agreed; a deposit locks it in.",
+  },
+  {
+    title: "Shoot",
+    detail: "Directed, lit and captured on the day — relaxed and hands-on.",
+  },
+  {
+    title: "Deliver",
+    detail: "Sneak peek within days, the full gallery or film soon after.",
+  },
+];
 
-  const tick = useCallback(() => {
-    const current = words[wordIndex];
-    if (!isDeleting) {
-      if (text.length < current.length) {
-        setText(current.slice(0, text.length + 1));
-      } else {
-        timerRef.current = window.setTimeout(() => setIsDeleting(true), 2000);
-        return;
-      }
-    } else if (text.length > 0) {
-      setText(current.slice(0, text.length - 1));
-    } else {
-      setIsDeleting(false);
-      setWordIndex(p => (p + 1) % words.length);
-    }
-  }, [text, isDeleting, wordIndex, words]);
+// Laid out like the Skills rows on gafaraleshe.com: discipline on the
+// left, what it covers inline with a glyph each.
+const disciplines: [string, [string, LucideIcon][]][] = [
+  [
+    "Photography",
+    [
+      ["Portraits", User],
+      ["Concerts", Music],
+      ["Sports", Trophy],
+      ["Events", PartyPopper],
+      ["Products", Package],
+      ["Weddings", Camera],
+    ],
+  ],
+  [
+    "Videography",
+    [
+      ["Brand films", Megaphone],
+      ["Event coverage", Video],
+      ["Social content", Smartphone],
+    ],
+  ],
+  [
+    "Cinematography",
+    [
+      ["Direction", Clapperboard],
+      ["Lighting", Lightbulb],
+      ["Colour grading", Palette],
+    ],
+  ],
+  [
+    "Delivery",
+    [
+      ["Online gallery", Aperture],
+      ["Highlight reels", Film],
+    ],
+  ],
+];
 
-  useEffect(() => {
-    const speed = isDeleting ? 40 : 70;
-    timerRef.current = window.setTimeout(tick, speed);
-    return () => {
-      if (timerRef.current) window.clearTimeout(timerRef.current);
-    };
-  }, [tick, isDeleting]);
+// The categories on /portfolio (lib/portfolio.ts), one line each.
+const work = [
+  { name: "Concerts", slug: "concerts", detail: "Stage light, crowd noise and the moment the artist looks up" },
+  { name: "Events", slug: "events", detail: "Full coverage, from the doors opening to the last dance" },
+  { name: "Birthdays", slug: "birthdays", detail: "Milestones shot like the main event they are" },
+  { name: "Football", slug: "football", detail: "Training sessions and match days at full speed" },
+  { name: "Lifestyle", slug: "lifestyle", detail: "Everyday places, real people, honest light" },
+  { name: "Nightlife", slug: "nightlife", detail: "Flash, neon and whatever the night turns into" },
+  { name: "Brand", slug: "brand", detail: "Campaign-style content for brands that want to look like themselves" },
+];
 
+// From app/pricing/page.tsx.
+const packages = [
+  { name: "Portrait Session", note: "Up to 1 hour · 15+ images", price: "£150" },
+  { name: "Brand Content", note: "Half day · photo + video set", price: "£350" },
+  {
+    name: "Event Coverage",
+    note: "Up to 4 hours · photos + highlight reel",
+    price: "£450",
+  },
+  {
+    name: "Wedding Film & Photo",
+    note: "Up to 8 hours · film + 250+ images",
+    price: "£1,200",
+  },
+];
+
+// ── Pieces ──
+
+function Section({
+  id,
+  title,
+  action,
+  children,
+}: {
+  id?: string;
+  title: string;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
-    <span>
-      {text}
-      <motion.span
-        animate={{ opacity: [1, 0] }}
-        transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
-        className="ml-0.5 inline-block h-[0.9em] w-[2px] translate-y-[2px] bg-neutral-900"
-      />
-    </span>
+    <Reveal y={16}>
+      <section id={id} className="scroll-mt-16">
+        <div className="mb-4 flex items-baseline justify-between gap-4">
+          <h2 className="text-[15px] font-medium tracking-[-0.01em] text-ink">
+            {title}
+          </h2>
+          {action}
+        </div>
+        {children}
+      </section>
+    </Reveal>
+  );
+}
+
+function SectionLink({
+  href,
+  children,
+  external = false,
+}: {
+  href: string;
+  children: React.ReactNode;
+  external?: boolean;
+}) {
+  return (
+    <a
+      href={href}
+      {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
+      className="group flex items-center gap-1.5 text-[13px] text-ink-muted transition-colors hover:text-ink sm:text-[13.5px]"
+    >
+      {children}
+      <span
+        aria-hidden
+        className="text-ink-faint transition-transform duration-300 group-hover:translate-x-0.5"
+      >
+        →
+      </span>
+    </a>
   );
 }
 
 function CornerMarks() {
-  const base = "pointer-events-none absolute h-4 w-4 border-neutral-900/40";
+  const base = "pointer-events-none absolute h-3 w-3 border-ink/25";
   return (
     <>
       <span className={`${base} left-3 top-3 border-l border-t`} />
@@ -165,332 +242,431 @@ function CornerMarks() {
   );
 }
 
-function SectionCard({
-  id,
-  label,
-  title,
-  children,
-}: {
-  id?: string;
-  label: string;
-  title: string;
-  children: React.ReactNode;
-}) {
+// Hand-written margin note with a drawn arrow pointing back at the buttons.
+function BookingNow() {
   return (
-    <Reveal>
-      <section
-        id={id}
-        className="relative mt-4 scroll-mt-6 rounded-md border border-neutral-900/10 bg-[#f4f3ec] px-6 py-7 shadow-[0_30px_80px_-24px_rgba(0,0,0,0.45)] sm:px-8 sm:py-9"
-        style={DOTTED}
+    <div
+      aria-hidden
+      className="pointer-events-none ml-3 hidden items-center gap-1 sm:flex"
+    >
+      <svg
+        viewBox="0 0 64 32"
+        fill="none"
+        className="doodle h-7 w-14 overflow-visible text-ink-muted"
       >
-        <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-neutral-500">
-          {label}
-        </p>
-        <h2 className="mb-6 mt-1 font-display text-2xl font-extrabold uppercase tracking-tight text-neutral-900 sm:text-3xl">
-          {title}
-        </h2>
-        {children}
-      </section>
-    </Reveal>
+        <path
+          d="M60 22C46 30 22 28 6 12"
+          pathLength={1}
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+        />
+        <path
+          d="M5 22L5 11L16 10"
+          pathLength={1}
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{ "--doodle-delay": "1.6s" } as React.CSSProperties}
+        />
+      </svg>
+      <motion.span
+        initial={{ opacity: 0, rotate: -8, y: 4 }}
+        animate={{
+          opacity: 1,
+          rotate: -6,
+          y: 0,
+          transition: { delay: 1.1, duration: 0.6, ease: EASE_OUT },
+        }}
+        className="-mt-5 whitespace-nowrap font-hand text-[21px] leading-none text-ink-muted"
+      >
+        booking now
+      </motion.span>
+    </div>
+  );
+}
+
+// The experience strip from gafaraleshe.com, as the four steps of a shoot:
+// a hairline with a dot per step, the first pulsing, detail on demand.
+function HowItWorks() {
+  const [open, setOpen] = useState(false);
+  const cols = process.length;
+
+  return (
+    <Section
+      id="process"
+      title="How a shoot works"
+      action={
+        <button
+          type="button"
+          onClick={() => setOpen(o => !o)}
+          aria-expanded={open}
+          className="flex items-center gap-1 text-[13px] text-ink-muted transition-colors hover:text-ink sm:text-[13.5px]"
+        >
+          {open ? "Less" : "Details"}
+          <span
+            aria-hidden
+            className={`inline-block transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          >
+            ⌄
+          </span>
+        </button>
+      }
+    >
+      <div aria-hidden className="relative mb-3.5 hidden h-2 sm:block">
+        <div
+          className="absolute left-0 top-1/2 h-px -translate-y-1/2"
+          style={{
+            right: `${100 / cols}%`,
+            backgroundImage:
+              "linear-gradient(to right, var(--ink) 0%, color-mix(in oklab, var(--ink) 18%, transparent) 70%)",
+          }}
+        />
+        <div
+          className="absolute inset-x-0 top-1/2 grid -translate-y-1/2"
+          style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+        >
+          {process.map((step, i) => (
+            <div key={step.title} className="flex justify-start">
+              <span className="relative flex size-1.5 items-center justify-center">
+                {i === 0 && (
+                  <span className="absolute -inset-1 animate-ping rounded-full bg-ink/15 [animation-duration:2.8s]" />
+                )}
+                <span
+                  className={`relative size-1.5 rounded-full ${i === 0 ? "bg-ink" : "bg-ink/30"}`}
+                />
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <ol className="grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-4">
+        {process.map((step, i) => (
+          <li key={step.title} className="sm:pr-3">
+            <p className="text-[14px] font-medium text-ink sm:text-[14.5px]">
+              {step.title}
+            </p>
+            <p className="mt-1 font-mono text-[11.5px] tracking-[0.02em] text-ink-faint">
+              Step {String(i + 1).padStart(2, "0")}
+            </p>
+            {open && (
+              <motion.p
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: i * 0.05, ease: EASE_OUT }}
+                className="mt-2 text-[13px] leading-relaxed text-ink-dim"
+              >
+                {step.detail}
+              </motion.p>
+            )}
+          </li>
+        ))}
+      </ol>
+    </Section>
   );
 }
 
 // ── Page ──
 export default function Home() {
   return (
-    <div className="min-h-screen px-4 py-6 sm:px-8 sm:py-8">
-      <SiteHeader active="/" />
+    <div className="min-h-screen px-4 py-5 sm:px-8 sm:py-8">
+      <SiteHeader active="/" width={WIDTH} />
 
-      <main className="mx-auto max-w-2xl pb-14">
-        {/* ── Identity card ── */}
-        <motion.div
-          {...heroRise}
-          className="relative rounded-md border border-neutral-900/10 bg-[#f4f3ec] px-6 py-8 shadow-[0_30px_80px_-24px_rgba(0,0,0,0.55)] sm:px-10 sm:py-10"
-          style={DOTTED}
-        >
-          <CornerMarks />
-          <motion.span
-            {...tapePop(-3, 0.9)}
-            className="pointer-events-none absolute -top-3 left-1/2 h-7 w-24 -translate-x-1/2 bg-stone-300/50 shadow-sm"
-          />
-          <motion.span
-            {...tapePop(-12, 1.05)}
-            className="pointer-events-none absolute -left-4 top-1/3 h-6 w-16 bg-emerald-300/30 shadow-sm"
-          />
-          <motion.span
-            {...tapePop(6, 1.2)}
-            className="pointer-events-none absolute -right-3 bottom-12 h-6 w-16 bg-amber-200/40 shadow-sm"
-          />
+      <main
+        className={`relative mx-auto ${WIDTH} rounded-xl border border-ink/10 bg-paper px-5 pb-8 pt-12 shadow-[0_30px_80px_-24px_rgba(0,0,0,0.6)] sm:px-12 sm:pb-10 sm:pt-16`}
+        style={DOTTED}
+      >
+        <CornerMarks />
 
-          <div className="flex items-start justify-between gap-4">
-            <motion.div {...rise(0.35)} className="pt-1">
-              <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-neutral-500">
-                Studio:
-              </p>
-              <h1 className="mt-1 font-display text-4xl font-extrabold uppercase leading-[0.9] tracking-tight text-neutral-900 sm:text-6xl">
-                <NameReveal lines={["Shot", "By Gafar"]} />
-              </h1>
-              <p className="mt-3 font-mono text-[13px] text-neutral-600">
-                <TypewriterText words={roles} />
-              </p>
-            </motion.div>
-
-            <motion.div
-              {...flipIn(0.7)}
-              {...photoHover}
-              className="group relative w-28 shrink-0 sm:w-36"
-            >
-              <motion.span
-                {...clipDrop(1.35)}
-                className="absolute -top-3 right-4 z-10"
-              >
-                <Paperclip
-                  className="h-7 w-7 -rotate-[20deg] text-neutral-400"
-                  strokeWidth={1.5}
-                />
-              </motion.span>
-              <div className="overflow-hidden rounded-sm border border-neutral-900/10 bg-white shadow-sm">
-                <img
-                  src={PROFILE_IMG}
-                  alt="Gafar Aleshe — SHOTBYGAFAR"
-                  className="aspect-square w-full object-cover grayscale transition duration-500 group-hover:grayscale-0"
-                />
-                <div className="border-t border-neutral-900/10 px-2 py-1.5">
-                  <p className="font-mono text-[9px] font-semibold uppercase leading-tight tracking-wide text-neutral-900">
-                    Gafar Aleshe
-                  </p>
-                  <div className="mt-0.5 flex items-center justify-between gap-1">
-                    <p className="font-mono text-[7.5px] uppercase leading-tight tracking-wide text-neutral-500">
-                      Photographer
-                    </p>
-                    <p className="font-mono text-[9px] text-neutral-400">
-                      UK
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-
-          <motion.p
-            {...rise(0.5)}
-            className="mt-6 max-w-md font-mono text-[13px] leading-relaxed text-neutral-700"
+        {/* ── Header ── */}
+        <header>
+          <motion.div
+            {...softRise(0)}
+            className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6"
           >
-            Photography, videography, and cinematography — capturing moments
-            that tell your story. Bold, authentic visuals for portraits,
-            weddings, events, and brands across the UK.
-          </motion.p>
+            <div className="flex items-center gap-3.5">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={PROFILE_IMG}
+                alt=""
+                width={44}
+                height={44}
+                className="size-11 shrink-0 rounded-full border border-ink/10 object-cover grayscale transition duration-500 hover:grayscale-0"
+              />
+              <div>
+                <h1 className="text-[17px] font-medium tracking-[-0.015em] text-ink sm:text-[18px]">
+                  <NameReveal
+                    lines={["SHOTBYGAFAR"]}
+                    delay={0.2}
+                    stagger={0.03}
+                    blur={4}
+                  />
+                </h1>
+                <p className="mt-0.5 text-[14px] text-ink-muted sm:text-[14.5px]">
+                  Photography &amp; film{" "}
+                  <span className="whitespace-nowrap text-ink-faint">
+                    / @shot.by.gafar
+                  </span>
+                </p>
+              </div>
+            </div>
 
-          <motion.div {...rise(0.65)} className="mt-6 flex flex-wrap gap-2">
-            <motion.a
-              {...hoverPop}
-              href="/portfolio"
-              className="rounded-md bg-neutral-900 px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-wide text-white transition-opacity hover:opacity-90"
+            <nav
+              aria-label="Profiles"
+              className="-ml-1.5 flex shrink-0 flex-wrap items-center gap-0.5 sm:ml-0 sm:gap-1 sm:pt-1"
             >
-              View Portfolio
-            </motion.a>
-            <motion.a
-              {...hoverPop}
-              href="/booking"
-              className="rounded-md border border-neutral-900/20 bg-white px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-wide text-neutral-900 transition-colors hover:bg-neutral-50"
-            >
-              Book a Shoot
-            </motion.a>
-            <motion.a
-              {...hoverPop}
-              href="https://www.instagram.com/shot.by.gafar/"
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-1.5 rounded-md border border-neutral-900/20 bg-white px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-wide text-neutral-900 transition-colors hover:bg-neutral-50"
-            >
-              <InstagramIcon />
-              @shot.by.gafar
-            </motion.a>
+              {profiles.map(({ label, href, Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  {...(href.startsWith("http")
+                    ? { target: "_blank", rel: "noreferrer" }
+                    : {})}
+                  aria-label={label}
+                  title={label}
+                  className="grid size-8 place-items-center rounded-md text-ink-muted transition-colors hover:bg-tile hover:text-ink focus-visible:outline-2 focus-visible:outline-ink"
+                >
+                  <Icon />
+                </a>
+              ))}
+            </nav>
           </motion.div>
-
-          <div className="mt-8 grid grid-cols-3 gap-3 border-t border-dashed border-neutral-900/15 pt-5">
-            {stats.map((s, i) => (
-              <motion.div {...rise(0.8 + i * 0.1)} key={s.label}>
-                <p className="font-display text-2xl font-extrabold tracking-tight text-neutral-900">
-                  {s.value}
-                </p>
-                <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-neutral-500">
-                  {s.label}
-                </p>
-              </motion.div>
-            ))}
-          </div>
 
           <motion.div
-            {...rise(1)}
-            className="mt-6 flex items-center justify-between border-t border-dashed border-neutral-900/15 pt-3"
+            {...softRise(0.05)}
+            className="mt-6 space-y-3.5 text-[14.5px] leading-[1.75] text-ink-dim sm:text-[15.5px]"
           >
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-500">
-              <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              Booking now · United Kingdom
+            <p>
+              Hey, I&apos;m Gafar — the photographer and filmmaker behind{" "}
+              <span className="text-ink">SHOTBYGAFAR</span>, based in the{" "}
+              <span className="text-ink">UK</span> and happy to travel. I shoot,
+              edit and grade everything in-house, so what you book is what you
+              get back.
             </p>
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-400">
-              Est. Gaffy Studios
+            <p>
+              Most of my work is for couples, creatives and small businesses who
+              want visuals that feel like them — bold{" "}
+              <a className="link" href="/services#shoots">
+                portraits
+              </a>
+              , cinematic{" "}
+              <a className="link" href="/portfolio">
+                wedding films
+              </a>{" "}
+              and{" "}
+              <a className="link" href="/services">
+                brand content
+              </a>{" "}
+              built for social.
+            </p>
+            <p>
+              SHOTBYGAFAR is part of{" "}
+              <a
+                className="link"
+                href="https://gaffystudios.com"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Gaffy Studios
+              </a>
+              . The grades I use are in the{" "}
+              <a
+                className="link"
+                href="https://www.gafaraleshe.com/cinema/shop"
+                target="_blank"
+                rel="noreferrer"
+              >
+                LUT &amp; preset shop
+              </a>
+              , and the code side of me lives at{" "}
+              <a
+                className="link"
+                href="https://www.gafaraleshe.com"
+                target="_blank"
+                rel="noreferrer"
+              >
+                gafaraleshe.com
+              </a>
+              .
             </p>
           </motion.div>
-        </motion.div>
 
-        {/* ── What we shoot ── */}
-        <SectionCard id="work" label="Work:" title="What we shoot">
-          <div className="grid gap-3 sm:grid-cols-2">
-            {shoots.map((s, i) => (
-              <motion.div
-                {...riseInView(i * 0.08)}
-                key={s.name}
-                className="rounded-md border border-neutral-900/10 bg-white p-5 shadow-sm"
-              >
-                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-400">
-                  {s.subtitle}
-                </p>
-                <h3 className="font-display text-lg font-bold uppercase tracking-tight text-neutral-900">
-                  {s.name}
-                </h3>
-                <p className="mt-2 font-mono text-[12px] leading-relaxed text-neutral-600">
-                  {s.description}
-                </p>
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {s.tags.map(tag => (
-                    <span
-                      key={tag}
-                      className="rounded border border-neutral-900/15 px-2 py-0.5 font-mono text-[10px] text-neutral-600"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </SectionCard>
-
-        {/* ── Services ── */}
-        <SectionCard id="services" label="Services:" title="What we do">
-          <div className="space-y-6">
-            {services.map((s, i) => (
-              <motion.div
-                {...riseInView(i * 0.12)}
-                key={s.title}
-                className={
-                  i > 0
-                    ? "border-t border-dashed border-neutral-900/15 pt-6"
-                    : ""
-                }
-              >
-                <div className="flex items-start gap-4">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-neutral-900 text-white">
-                    <s.Icon className="h-5 w-5" />
-                  </span>
-                  <div>
-                    <h3 className="font-display text-lg font-bold uppercase tracking-tight text-neutral-900">
-                      {s.title}
-                    </h3>
-                    <p className="mt-1 font-mono text-[12px] leading-relaxed text-neutral-600">
-                      {s.description}
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </SectionCard>
-
-        {/* ── Instagram embed ── */}
-        <Reveal>
-          <InstagramFeed />
-        </Reveal>
-
-        {/* ── Contact ── */}
-        <SectionCard id="contact" label="Contact:" title="Let's create something">
-          <p className="font-mono text-[12px] leading-relaxed text-neutral-600">
-            Booking portraits, weddings, events, and brand shoots across the UK.
-            Reach out any time — we usually reply within a day.
-          </p>
-
-          <div className="mt-5 space-y-2.5 border-t border-dashed border-neutral-900/15 pt-5">
-            <a
-              href="mailto:contact@shotbygafar.com"
-              className="flex items-center gap-3 font-mono text-[12px] text-neutral-700 transition-colors hover:text-neutral-900"
-            >
-              <Mail className="h-4 w-4 text-neutral-400" />
-              contact@shotbygafar.com
-            </a>
-            <a
-              href="tel:+447882655541"
-              className="flex items-center gap-3 font-mono text-[12px] text-neutral-700 transition-colors hover:text-neutral-900"
-            >
-              <Phone className="h-4 w-4 text-neutral-400" />
-              +44 788 265 5541
-            </a>
-            <p className="flex items-center gap-3 font-mono text-[12px] text-neutral-700">
-              <MapPin className="h-4 w-4 text-neutral-400" />
-              United Kingdom · Mobile & Studio
-            </p>
-          </div>
-
-          <div className="mt-5 flex flex-wrap gap-2">
-            <motion.a
-              {...hoverPop}
-              href="mailto:contact@shotbygafar.com"
-              className="flex items-center gap-2 rounded-md bg-neutral-900 px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wide text-white transition-opacity hover:opacity-90"
-            >
-              <Mail className="h-4 w-4" />
-              Email Us
-            </motion.a>
-            <motion.a
-              {...hoverPop}
-              href="https://wa.me/447882655541"
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-2 rounded-md border border-neutral-900/20 bg-white px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wide text-neutral-900 transition-colors hover:bg-neutral-50"
-            >
-              WhatsApp
-            </motion.a>
-            <motion.a
-              {...hoverPop}
-              href="https://www.instagram.com/shot.by.gafar/"
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-2 rounded-md border border-neutral-900/20 bg-white px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wide text-neutral-900 transition-colors hover:bg-neutral-50"
-            >
-              <InstagramIcon />
-              Instagram
-            </motion.a>
-          </div>
-        </SectionCard>
-
-        {/* ── Parent studio ── */}
-        <Reveal>
-          <motion.a
-            {...hoverLift}
-            href="https://gaffystudios.com"
-            target="_blank"
-            rel="noreferrer"
-            className="group mt-4 flex items-center justify-between gap-3 rounded-md border border-white/15 bg-white/[0.03] px-6 py-5 transition-colors hover:bg-white/[0.06]"
+          <motion.div
+            {...softRise(0.1)}
+            className="mt-7 flex flex-wrap items-center gap-2"
           >
-            <div>
-              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/50">
-                Part of
-              </p>
-              <p className="font-display text-lg font-bold uppercase tracking-tight text-white">
-                Gaffy Studios
-              </p>
-              <p className="font-mono text-[11px] text-white/60">
-                The creative studio behind SHOTBYGAFAR
-              </p>
-            </div>
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/25 text-white transition-colors group-hover:bg-white group-hover:text-neutral-900">
-              <ArrowUpRight className="h-4 w-4" />
-            </span>
-          </motion.a>
-        </Reveal>
+            <a
+              href="/booking"
+              className="flex items-center gap-1.5 rounded-lg bg-ink px-3.5 py-2 text-[13.5px] font-medium text-paper transition-opacity hover:opacity-85 sm:text-[14px]"
+            >
+              <CalendarCheck aria-hidden className="h-[15px] w-[15px]" />
+              Book a shoot
+            </a>
+            <a
+              href={WHATSAPP_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-1.5 rounded-lg border border-ink/15 bg-tile px-3.5 py-2 text-[13.5px] font-medium text-ink transition-colors hover:bg-tile-hover sm:text-[14px]"
+            >
+              <WhatsAppGlyph size={15} />
+              WhatsApp
+            </a>
+            <BookingNow />
+          </motion.div>
 
-        <SiteFooter />
+          <motion.dl
+            {...softRise(0.15)}
+            className="mt-6 flex flex-wrap gap-x-6 gap-y-1"
+          >
+            {stats.map(s => (
+              <div key={s.label} className="flex items-baseline gap-1.5">
+                <dt className="sr-only">{s.label}</dt>
+                <dd className="font-mono text-[11.5px] tracking-[0.02em] text-ink-faint">
+                  <span className="text-ink-dim">{s.value}</span> {s.label}
+                </dd>
+              </div>
+            ))}
+          </motion.dl>
+        </header>
+
+        <div className="mt-12 space-y-12">
+          {/* ── Latest: the Instagram grid ── */}
+          <Section
+            id="latest"
+            title="Latest"
+            action={
+              <SectionLink href={INSTAGRAM_PROFILE.url} external>
+                {INSTAGRAM_PROFILE.handle}
+              </SectionLink>
+            }
+          >
+            <InstagramFeed />
+          </Section>
+
+          <HowItWorks />
+
+          {/* ── Services ── */}
+          <Section
+            id="services"
+            title="Services"
+            action={<SectionLink href="/services">All services</SectionLink>}
+          >
+            <dl className="space-y-3">
+              {disciplines.map(([discipline, items]) => (
+                <div
+                  key={discipline}
+                  className="flex flex-col gap-1.5 sm:flex-row sm:items-baseline sm:gap-5"
+                >
+                  <dt className="w-28 shrink-0 text-[13px] text-ink-muted sm:text-[13.5px]">
+                    {discipline}
+                  </dt>
+                  <dd className="flex flex-wrap gap-x-3 gap-y-2">
+                    {items.map(([item, Icon]) => (
+                      <span
+                        key={item}
+                        className="flex items-center gap-1.5 text-[13px] text-ink-dim sm:text-[14px]"
+                      >
+                        <Icon
+                          aria-hidden
+                          strokeWidth={2}
+                          className="size-[15px] shrink-0 text-ink-muted"
+                        />
+                        {item}
+                      </span>
+                    ))}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </Section>
+
+          {/* ── Work ── */}
+          <Section
+            id="work"
+            title="What I shoot"
+            action={<SectionLink href="/portfolio">Portfolio</SectionLink>}
+          >
+            <ol className="space-y-3">
+              {work.map((w, i) => (
+                <li key={w.name} className="flex items-baseline gap-3">
+                  <span className="w-4 shrink-0 font-mono text-[11.5px] tracking-[0.02em] text-ink-faint">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <p className="text-[14px] leading-relaxed text-ink-muted sm:text-[14.5px]">
+                    <a href={`/portfolio#${w.slug}`} className="link">
+                      {w.name}
+                    </a>{" "}
+                    <span className="text-ink-faint">—</span> {w.detail}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          </Section>
+
+          {/* ── Packages ── */}
+          <Section
+            id="packages"
+            title="Packages"
+            action={<SectionLink href="/pricing">Full pricing</SectionLink>}
+          >
+            <ul className="divide-y divide-ink/10 border-y border-ink/10">
+              {packages.map(p => (
+                <li key={p.name}>
+                  <a
+                    href="/pricing"
+                    className="group flex items-baseline justify-between gap-4 py-3"
+                  >
+                    <span>
+                      <span className="text-[14px] text-ink sm:text-[14.5px]">
+                        {p.name}
+                      </span>
+                      <span className="mt-0.5 block font-mono text-[11.5px] tracking-[0.02em] text-ink-faint sm:ml-3 sm:mt-0 sm:inline">
+                        {p.note}
+                      </span>
+                    </span>
+                    <span className="shrink-0 font-mono text-[12.5px] text-ink-dim transition-colors group-hover:text-ink">
+                      <span className="text-ink-faint">from </span>
+                      {p.price}
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-3 text-[13px] text-ink-muted">
+              Every shoot is quoted to fit.{" "}
+              <a href="/booking" className="link">
+                Send an enquiry
+              </a>{" "}
+              and I&apos;ll come back within a day.
+            </p>
+          </Section>
+        </div>
+
+        {/* ── Footer ── */}
+        <footer className="mt-20 flex flex-wrap items-center justify-between gap-3 border-t border-ink/10 pt-5">
+          <p className="font-mono text-[11.5px] tracking-[0.02em] text-ink-faint">
+            © {new Date().getFullYear()} SHOTBYGAFAR
+          </p>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <a
+              href={PHONE_HREF}
+              className="font-mono text-[11.5px] tracking-[0.02em] text-ink-muted transition-colors hover:text-ink"
+            >
+              {PHONE}
+            </a>
+            <a
+              href={`mailto:${EMAIL}`}
+              className="font-mono text-[11.5px] tracking-[0.02em] text-ink-muted transition-colors hover:text-ink"
+            >
+              {EMAIL}
+            </a>
+          </div>
+        </footer>
       </main>
+
+      <SiteFooter width={WIDTH} />
     </div>
   );
 }

@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -10,8 +12,58 @@
   --color-border: var(--border);
   --font-serif: var(--font-dm-serif), Georgia, serif;
   --font-mono: var(--font-geist-mono), monospace;
-  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-sans: var(--font-geist), var(--font-inter), system-ui, sans-serif;
   --font-display: var(--font-archivo), system-ui, sans-serif;
+  --font-hand: var(--font-caveat), "Comic Sans MS", cursive;
+  /* Site palette — see the light/dark values below. */
+  --color-canvas: var(--canvas);
+  --color-paper: var(--paper);
+  --color-tile: var(--tile);
+  --color-tile-hover: var(--tile-hover);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-dim: var(--ink-dim);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-scrim: var(--scrim);
+}
+
+/* Site palette, shared with gafaraleshe.com. Dark is the default: neutral
+   near-black after pysavant.cv, with the sheet a step lighter than the
+   canvas. Light is SHOTBYGAFAR's original look: cream index cards on the
+   black graph-paper canvas.
+     canvas  page background behind the cards (+ its grid lines)
+     paper   cards (+ their dot texture)
+     tile    chips, buttons and inner cards that sit on paper
+     ink     text, borders (ink/10…ink/40) and filled buttons (bg-ink text-paper) */
+:root {
+  --canvas: #0a0a0a;
+  --canvas-grid: rgb(255 255 255 / 0.05);
+  --paper: #f4f3ec;
+  --paper-dot: rgb(0 0 0 / 0.07);
+  --tile: #ffffff;
+  --tile-hover: oklch(98.5% 0 0);
+  --ink: oklch(20.5% 0 0);
+  --ink-soft: oklch(37.1% 0 0);
+  --ink-dim: oklch(43.9% 0 0);
+  --ink-muted: oklch(55.6% 0 0);
+  --ink-faint: oklch(70.8% 0 0);
+  --scrim: rgb(0 0 0 / 0.8);
+}
+
+.dark {
+  --canvas: #060606;
+  --canvas-grid: rgb(255 255 255 / 0.045);
+  --paper: #0a0a0a;
+  --paper-dot: rgb(255 255 255 / 0.035);
+  --tile: #161616;
+  --tile-hover: #1d1d1d;
+  --ink: #ededed;
+  --ink-soft: #c4c4c4;
+  --ink-dim: #a1a1a1;
+  --ink-muted: #8a8a8a;
+  --ink-faint: #5e5e5e;
+  --scrim: rgb(0 0 0 / 0.8);
 }
 
 :root {
@@ -32,10 +84,10 @@ html {
   body {
     @apply bg-background text-foreground font-sans antialiased;
     /* Gaffy Studios canvas: near-black with a faint graph-paper grid */
-    background-color: #0a0a0a;
+    background-color: var(--canvas);
     background-image:
-      linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      linear-gradient(var(--canvas-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--canvas-grid) 1px, transparent 1px);
     background-size: 32px 32px;
     background-position: center top;
     background-attachment: fixed;
@@ -53,6 +105,41 @@ html {
   input[type="checkbox"]:not(:disabled),
   input[type="radio"]:not(:disabled) {
     @apply cursor-pointer;
+  }
+}
+
+/* pysavant-style inline link: ink text, faint underline that firms up. */
+.link {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--ink-faint);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.15s;
+}
+.link:hover {
+  text-decoration-color: var(--ink-dim);
+}
+
+/* Hand-drawn doodle strokes (the margin-note arrow on the home page). */
+@keyframes doodle-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.doodle path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: doodle-draw 0.9s cubic-bezier(0.45, 0, 0.3, 1) both;
+  animation-delay: var(--doodle-delay, 0.9s);
+}
+@media (prefers-reduced-motion: reduce) {
+  .doodle path {
+    animation: none;
+    stroke-dashoffset: 0;
   }
 }
 

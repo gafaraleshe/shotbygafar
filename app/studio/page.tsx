@@ -15,7 +15,7 @@ import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { Input, Label } from "@/components/FormControls";
 
 const DOTTED = {
-  backgroundImage: "radial-gradient(rgba(0,0,0,0.07) 1px, transparent 1px)",
+  backgroundImage: "radial-gradient(var(--paper-dot) 1px, transparent 1px)",
   backgroundSize: "16px 16px",
 } as const;
 
@@ -64,14 +64,14 @@ function money(v: string | null, currency = "GBP") {
 
 function statusColor(s: string): string {
   const map: Record<string, string> = {
-    new: "bg-blue-100 text-blue-800 border-blue-300",
-    contacted: "bg-amber-100 text-amber-800 border-amber-300",
-    quoted: "bg-violet-100 text-violet-800 border-violet-300",
-    confirmed: "bg-emerald-100 text-emerald-800 border-emerald-300",
-    completed: "bg-neutral-900 text-white border-neutral-900",
-    cancelled: "bg-neutral-100 text-neutral-500 border-neutral-300 line-through",
+    new: "bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-400/15 dark:text-blue-300 dark:border-blue-400/30",
+    contacted: "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-400/15 dark:text-amber-300 dark:border-amber-400/30",
+    quoted: "bg-violet-100 text-violet-800 border-violet-300 dark:bg-violet-400/15 dark:text-violet-300 dark:border-violet-400/30",
+    confirmed: "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-400/15 dark:text-emerald-300 dark:border-emerald-400/30",
+    completed: "bg-ink text-paper border-ink",
+    cancelled: "bg-ink/5 text-ink-muted border-ink/20 line-through",
   };
-  return map[s] ?? "bg-neutral-100 text-neutral-700 border-neutral-300";
+  return map[s] ?? "bg-ink/5 text-ink-soft border-ink/20";
 }
 
 export default function Studio() {
@@ -137,23 +137,23 @@ export default function Studio() {
       <main className="mx-auto max-w-5xl pb-14">
         {/* Hero */}
         <section
-          className="relative rounded-md border border-neutral-900/10 bg-[#f4f3ec] px-6 py-8 shadow-[0_30px_80px_-24px_rgba(0,0,0,0.55)] sm:px-10 sm:py-10"
+          className="relative rounded-md border border-ink/10 bg-paper px-6 py-8 shadow-[0_30px_80px_-24px_rgba(0,0,0,0.55)] sm:px-10 sm:py-10"
           style={DOTTED}
         >
-          <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-neutral-500">
+          <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-ink-muted">
             Studio:
           </p>
-          <h1 className="mt-1 font-display text-4xl font-extrabold uppercase leading-[0.95] tracking-tight text-neutral-900 sm:text-5xl">
+          <h1 className="mt-1 font-display text-4xl font-extrabold uppercase leading-[0.95] tracking-tight text-ink sm:text-5xl">
             Booking CRM
           </h1>
-          <p className="mt-4 max-w-md font-mono text-[13px] leading-relaxed text-neutral-700">
+          <p className="mt-4 max-w-md font-mono text-[13px] leading-relaxed text-ink-soft">
             Every enquiry, quote and confirmed shoot — synced from Hermite Flow.
           </p>
           <a
             href="https://flow.hermitelabs.com"
             target="_blank"
             rel="noreferrer"
-            className="mt-4 inline-flex items-center gap-1 font-mono text-[11px] font-semibold uppercase tracking-wide text-neutral-900 underline decoration-neutral-400 underline-offset-4"
+            className="mt-4 inline-flex items-center gap-1 font-mono text-[11px] font-semibold uppercase tracking-wide text-ink underline decoration-ink-faint underline-offset-4"
           >
             Manage in Hermite Flow
             <ArrowUpRight className="h-3.5 w-3.5" />
@@ -162,17 +162,17 @@ export default function Studio() {
 
         {!authed ? (
           <section
-            className="relative mt-4 rounded-md border border-neutral-900/10 bg-[#f4f3ec] px-6 py-8 shadow-[0_30px_80px_-24px_rgba(0,0,0,0.45)] sm:px-8"
+            className="relative mt-4 rounded-md border border-ink/10 bg-paper px-6 py-8 shadow-[0_30px_80px_-24px_rgba(0,0,0,0.45)] sm:px-8"
             style={DOTTED}
           >
             <div className="mx-auto max-w-sm text-center">
-              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-neutral-900 text-white">
+              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-ink text-paper">
                 <Lock className="h-6 w-6" />
               </span>
-              <h2 className="mt-4 font-display text-2xl font-extrabold uppercase tracking-tight text-neutral-900">
+              <h2 className="mt-4 font-display text-2xl font-extrabold uppercase tracking-tight text-ink">
                 Studio access
               </h2>
-              <p className="mx-auto mt-2 font-mono text-[12px] leading-relaxed text-neutral-600">
+              <p className="mx-auto mt-2 font-mono text-[12px] leading-relaxed text-ink-dim">
                 Enter your studio access code to view bookings.
               </p>
               <form
@@ -191,12 +191,12 @@ export default function Studio() {
                   placeholder="STUDIO_TOKEN"
                 />
                 {error ? (
-                  <p className="mt-2 font-mono text-[11px] text-red-600">{error}</p>
+                  <p className="mt-2 font-mono text-[11px] text-red-600 dark:text-red-400">{error}</p>
                 ) : null}
                 <button
                   type="submit"
                   disabled={loading}
-                  className="mt-4 w-full rounded-md bg-neutral-900 px-5 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wide text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+                  className="mt-4 w-full rounded-md bg-ink px-5 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wide text-paper transition-opacity hover:opacity-90 disabled:opacity-60"
                 >
                   {loading ? "Checking…" : "Unlock"}
                 </button>
@@ -218,13 +218,13 @@ export default function Studio() {
               ].map(s => (
                 <div
                   key={s.label}
-                  className="rounded-md border border-neutral-900/10 bg-[#f4f3ec] p-4"
+                  className="rounded-md border border-ink/10 bg-paper p-4"
                   style={DOTTED}
                 >
-                  <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-500">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-muted">
                     {s.label}
                   </p>
-                  <p className="mt-1 font-display text-2xl font-extrabold text-neutral-900">
+                  <p className="mt-1 font-display text-2xl font-extrabold text-ink">
                     {s.value}
                   </p>
                 </div>
@@ -239,8 +239,8 @@ export default function Studio() {
                   onClick={() => setStatus(s)}
                   className={`rounded-full border px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-wide transition-colors ${
                     status === s
-                      ? "border-neutral-900 bg-neutral-900 text-white"
-                      : "border-neutral-900/20 bg-white text-neutral-700 hover:bg-neutral-50"
+                      ? "border-ink bg-ink text-paper"
+                      : "border-ink/20 bg-tile text-ink-soft hover:bg-tile-hover"
                   }`}
                 >
                   {s}
@@ -248,7 +248,7 @@ export default function Studio() {
               ))}
               <button
                 onClick={() => load(token, status)}
-                className="ml-auto inline-flex items-center gap-1.5 rounded-md border border-neutral-900/20 bg-white px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-wide text-neutral-900 hover:bg-neutral-50"
+                className="ml-auto inline-flex items-center gap-1.5 rounded-md border border-ink/20 bg-tile px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-wide text-ink hover:bg-tile-hover"
               >
                 <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
                 Refresh
@@ -257,15 +257,15 @@ export default function Studio() {
 
             {/* Table */}
             <section
-              className="relative mt-4 overflow-hidden rounded-md border border-neutral-900/10 bg-[#f4f3ec]"
+              className="relative mt-4 overflow-hidden rounded-md border border-ink/10 bg-paper"
               style={DOTTED}
             >
               {error ? (
-                <p className="p-6 text-center font-mono text-[12px] text-red-600">
+                <p className="p-6 text-center font-mono text-[12px] text-red-600 dark:text-red-400">
                   {error}
                 </p>
               ) : bookings.length === 0 ? (
-                <div className="py-14 text-center text-neutral-500">
+                <div className="py-14 text-center text-ink-muted">
                   <CalendarCheck className="mx-auto mb-3 h-9 w-9 opacity-40" />
                   <p className="font-mono text-[12px] uppercase tracking-wide">
                     {loading ? "Loading…" : "No bookings yet"}
@@ -275,12 +275,12 @@ export default function Studio() {
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse">
                     <thead>
-                      <tr className="border-b border-neutral-900/10 bg-white/40">
+                      <tr className="border-b border-ink/10 bg-white/40">
                         {["Customer", "Service", "Date", "Amount", "Status"].map(
                           h => (
                             <th
                               key={h}
-                              className="px-4 py-3 text-left font-mono text-[10px] font-semibold uppercase tracking-wider text-neutral-500"
+                              className="px-4 py-3 text-left font-mono text-[10px] font-semibold uppercase tracking-wider text-ink-muted"
                             >
                               {h}
                             </th>
@@ -292,23 +292,23 @@ export default function Studio() {
                       {bookings.map(b => (
                         <tr
                           key={b.id}
-                          className="border-b border-neutral-900/5 last:border-0"
+                          className="border-b border-ink/5 last:border-0"
                         >
                           <td className="px-4 py-3">
-                            <p className="font-mono text-[13px] font-semibold text-neutral-900">
+                            <p className="font-mono text-[13px] font-semibold text-ink">
                               {b.name}
                             </p>
-                            <p className="font-mono text-[11px] text-neutral-500">
+                            <p className="font-mono text-[11px] text-ink-muted">
                               {b.email}
                             </p>
                           </td>
-                          <td className="px-4 py-3 font-mono text-[12px] text-neutral-700">
+                          <td className="px-4 py-3 font-mono text-[12px] text-ink-soft">
                             {b.packageName || b.serviceType || "—"}
                           </td>
-                          <td className="px-4 py-3 font-mono text-[12px] text-neutral-600">
+                          <td className="px-4 py-3 font-mono text-[12px] text-ink-dim">
                             {b.eventDate || "—"}
                           </td>
-                          <td className="px-4 py-3 font-mono text-[12px] text-neutral-900">
+                          <td className="px-4 py-3 font-mono text-[12px] text-ink">
                             {money(b.amount, b.currency)}
                           </td>
                           <td className="px-4 py-3">

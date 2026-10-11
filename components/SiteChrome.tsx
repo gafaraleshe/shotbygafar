@@ -2,8 +2,8 @@
 
 /*
  * Shared top bar + footer for every page.
- * Same filing-card chrome as gaffystudios.com / gafaraleshe.com, on the
- * black graph-paper canvas — tuned for the SHOTBYGAFAR photography brand.
+ * Same chrome as gafaraleshe.com, on the graph-paper canvas (near-black in
+ * both themes, so the white type always reads) — tuned for SHOTBYGAFAR.
  */
 
 import { motion } from "framer-motion";
@@ -17,11 +17,18 @@ const NAV = [
   { label: "FAQ", href: "/faq" },
 ] as const;
 
-export function SiteHeader({ active }: { active?: string }) {
+// Inner pages sit in a 2xl column; the home sheet is a little wider.
+export function SiteHeader({
+  active,
+  width = "max-w-2xl",
+}: {
+  active?: string;
+  width?: string;
+}) {
   return (
     <motion.header
       {...fadeIn(0.15)}
-      className="mx-auto mb-8 flex max-w-2xl flex-wrap items-center justify-between gap-x-2 gap-y-2 sm:mb-10"
+      className={`mx-auto mb-8 flex ${width} flex-wrap items-center justify-between gap-x-2 gap-y-2 px-1 sm:mb-10`}
     >
       <a
         href="/"
@@ -51,7 +58,7 @@ export function SiteHeader({ active }: { active?: string }) {
   );
 }
 
-export function SiteFooter() {
+export function SiteFooter({ width = "max-w-2xl" }: { width?: string }) {
   const links = [
     { label: "Services", href: "/services" },
     { label: "Pricing", href: "/pricing" },
@@ -61,7 +68,7 @@ export function SiteFooter() {
     { label: "All Links →", href: "/links" },
   ];
   return (
-    <div className="mx-auto mt-6 flex max-w-2xl flex-wrap items-center justify-between gap-2 px-1">
+    <div className={`mx-auto mt-6 flex ${width} flex-wrap items-center justify-between gap-2 px-1`}>
       <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/60">
         © {new Date().getFullYear()} SHOTBYGAFAR · Gaffy Studios Ltd
       </p>
