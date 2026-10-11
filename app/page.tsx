@@ -19,10 +19,12 @@ import {
   Film,
   Lightbulb,
   Megaphone,
+  Music,
   Package,
   Palette,
   PartyPopper,
   Smartphone,
+  Trophy,
   User,
   Video,
   type LucideIcon,
@@ -115,9 +117,11 @@ const disciplines: [string, [string, LucideIcon][]][] = [
     "Photography",
     [
       ["Portraits", User],
+      ["Concerts", Music],
+      ["Sports", Trophy],
+      ["Events", PartyPopper],
       ["Products", Package],
       ["Weddings", Camera],
-      ["Events", PartyPopper],
     ],
   ],
   [
@@ -145,23 +149,15 @@ const disciplines: [string, [string, LucideIcon][]][] = [
   ],
 ];
 
+// The categories on /portfolio (lib/portfolio.ts), one line each.
 const work = [
-  {
-    name: "Portraits",
-    detail: "Studio, on-location and lifestyle sessions that feel like you",
-  },
-  {
-    name: "Weddings",
-    detail: "Cinematic films and photography of the day as it felt",
-  },
-  {
-    name: "Events",
-    detail: "Parties, conferences and live shows, galleries and reels",
-  },
-  {
-    name: "Brand content",
-    detail: "Product films, promos and social-first content for brands",
-  },
+  { name: "Concerts", slug: "concerts", detail: "Stage light, crowd noise and the moment the artist looks up" },
+  { name: "Events", slug: "events", detail: "Full coverage, from the doors opening to the last dance" },
+  { name: "Birthdays", slug: "birthdays", detail: "Milestones shot like the main event they are" },
+  { name: "Football", slug: "football", detail: "Training sessions and match days at full speed" },
+  { name: "Lifestyle", slug: "lifestyle", detail: "Everyday places, real people, honest light" },
+  { name: "Nightlife", slug: "nightlife", detail: "Flash, neon and whatever the night turns into" },
+  { name: "Brand", slug: "brand", detail: "Campaign-style content for brands that want to look like themselves" },
 ];
 
 // From app/pricing/page.tsx.
@@ -599,7 +595,7 @@ export default function Home() {
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <p className="text-[14px] leading-relaxed text-ink-muted sm:text-[14.5px]">
-                    <a href="/portfolio" className="link">
+                    <a href={`/portfolio#${w.slug}`} className="link">
                       {w.name}
                     </a>{" "}
                     <span className="text-ink-faint">—</span> {w.detail}

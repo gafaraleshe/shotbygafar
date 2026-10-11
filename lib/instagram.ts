@@ -97,6 +97,71 @@ export async function fetchInstagramPosts(limit = 9): Promise<IgPost[]> {
   }
 }
 
+// ── Specific posts, by shortcode ──
+
+export type IgSlide = { url: string; video: boolean };
+export type IgResolved = { slides: IgSlide[]; caption: string; timestamp?: string };
+
+type IgMediaFull = IgMedia & {
+  timestamp?: string;
+  children?: {
+    data?: { media_type: IgMedia["media_type"]; media_url?: string; thumbnail_url?: string }[];
+  };
+};
+
+const SHORTCODE = /\/(?:p|reel|tv)\/([^/?#]+)/;
+const MAX_PAGES = 8; // 8 x 50 = the latest 400 posts
+
+/**
+ * Looks up the given posts in the connected account's media and returns
+ * their slides (images, or video posters) and captions, keyed by shortcode.
+ * Posts by other accounts, or older than the pages searched, are simply
+ * missing from the result; no token returns {}.
+ */
+export async function fetchPostsByShortcode(
+  codes: string[]
+): Promise<Record<string, IgResolved>> {
+  const token = await getAccessToken();
+  const wanted = new Set(codes);
+  const found: Record<string, IgResolved> = {};
+  if (!token || !wanted.size) return found;
+
+  const fields =
+    "id,permalink,media_type,media_url,thumbnail_url,caption,timestamp,children{media_type,media_url,thumbnail_url}";
+  let next: string | undefined =
+    `https://graph.instagram.com/me/media?fields=${fields}&limit=50&access_token=${token}`;
+
+  try {
+    for (let page = 0; next && page < MAX_PAGES; page++) {
+      const r = await fetch(next, { next: { revalidate: 3600 } });
+      if (!r.ok) break;
+      const data = (await r.json()) as {
+        data?: IgMediaFull[];
+        paging?: { next?: string };
+      };
+      for (const m of data.data ?? []) {
+        const code = SHORTCODE.exec(m.permalink)?.[1];
+        if (!code || !wanted.has(code)) continue;
+        const parts = m.children?.data?.length ? m.children.data : [m];
+        const slides = parts
+          .map(c => ({
+            url: (c.media_type === "VIDEO" ? c.thumbnail_url : c.media_url) ?? "",
+            video: c.media_type === "VIDEO",
+          }))
+          .filter(sl => sl.url);
+        if (slides.length) {
+          found[code] = { slides, caption: m.caption ?? "", timestamp: m.timestamp };
+        }
+      }
+      if (Object.keys(found).length === wanted.size) break;
+      next = data.paging?.next;
+    }
+  } catch {
+    // Whatever was found before the error still counts.
+  }
+  return found;
+}
+
 export type RefreshResult = {
   ok: boolean;
   expiresIn?: number;
