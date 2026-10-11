@@ -1,79 +1,69 @@
 "use client";
 
 /*
- * Fullscreen portfolio viewer. Opens on a post and shows every post in that
- * category, with chips to jump between categories, so a visitor can walk
- * through all the styles without leaving the page.
+ * Fullscreen portfolio viewer. Opens on a frame and holds every frame of
+ * every set in that category, with chips to jump between categories, so a
+ * visitor can walk through all the styles without leaving the page.
  *
- *   Desktop  a side-by-side carousel: posts and frames sit in a row that
- *            snaps to the centre, with arrow buttons and ←/→ keys.
- *   Mobile   reels-style: one post per screen, swipe up for the next.
+ *   Desktop  a side-by-side carousel: frames sit in a row at full height,
+ *            snapping to the centre, with arrow buttons and ←/→ keys.
+ *   Mobile   reels-style: one frame per screen, swipe up for the next.
  *
- * A post the Graph API could resolve (lib/instagram.ts) shows its actual
- * slides as images, with the caption on the first; anything else shows the
- * captioned Instagram embed. Each category ends on a card to the next one.
+ * Each frame carries its set's label (who, where) and its place in the set.
+ * Each category ends on a card to the next one.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, ArrowUpRight, X } from "lucide-react";
-import type { IgResolved } from "@/lib/instagram";
-import { portfolio, postUrl, type PortfolioCategory } from "@/lib/portfolio";
-import { InstagramEmbed } from "./InstagramEmbed";
+import {
+  framesOf,
+  portfolio,
+  postUrl,
+  type PortfolioCategory,
+} from "@/lib/portfolio";
 
-export type Slide =
-  | { key: string; code: string; kind: "embed"; note?: string; credit?: string }
-  | {
-      key: string;
-      code: string;
-      kind: "image";
-      url: string;
-      video: boolean;
-      frame: number;
-      total: number;
-      caption?: string;
-      credit?: string;
-    };
+export type Slide = {
+  key: string;
+  code: string;
+  src: string;
+  w: number;
+  h: number;
+  video: boolean;
+  n: number;
+  total: number;
+  title: string;
+  context?: string;
+  credit?: string;
+};
 
-/** The slides a category opens as, shared with the page so a click on any
-    post can open the viewer right on it. */
-export function buildSlides(
-  category: PortfolioCategory,
-  media: Record<string, IgResolved>
-): Slide[] {
-  return category.posts.flatMap((post): Slide[] => {
-    const resolved = media[post.code];
-    if (!resolved) {
-      const note = post.frames
-        ? `Swipe to frames ${post.frames[0]}–${post.frames[post.frames.length - 1]}`
-        : undefined;
-      return [
-        { key: post.code, code: post.code, kind: "embed", note, credit: post.credit },
-      ];
-    }
-    const picked = (post.frames ?? resolved.slides.map((_, i) => i + 1))
-      .filter(n => resolved.slides[n - 1])
-      .map(n => ({ n, slide: resolved.slides[n - 1] }));
-    return picked.map(({ n, slide }, i) => ({
-      key: `${post.code}-${n}`,
+/** Every frame a category opens as, shared with the page so a click on any
+    frame can open the viewer right on it. */
+export function buildSlides(category: PortfolioCategory): Slide[] {
+  return category.posts.flatMap(post => {
+    const frames = framesOf(post);
+    return frames.map(f => ({
+      key: `${post.code}-${f.n}`,
       code: post.code,
-      kind: "image",
-      url: slide.url,
-      video: slide.video,
-      frame: n,
-      total: resolved.slides.length,
-      caption: i === 0 ? resolved.caption : undefined,
+      src: f.src,
+      w: f.w,
+      h: f.h,
+      video: Boolean(f.video),
+      n: f.n,
+      total: f.total,
+      title: post.title,
+      context: post.context,
       credit: post.credit,
     }));
   });
 }
 
+const pad = (n: number) => String(n).padStart(2, "0");
+
 /** Mounted only while open; `start` is the category and slide it opens on. */
 export function Viewer({
-  media,
   start,
   onClose,
 }: {
-  media: Record<string, IgResolved>;
   start: { slug: string; index: number };
   onClose: () => void;
 }) {
@@ -89,7 +79,7 @@ export function Viewer({
   );
   const category = portfolio[catIndex];
   const nextCategory = portfolio[(catIndex + 1) % portfolio.length];
-  const slides = useMemo(() => buildSlides(category, media), [category, media]);
+  const slides = useMemo(() => buildSlides(category), [category]);
   // The end card counts as a slide for the arrows and the observer.
   const count = slides.length + 1;
 
@@ -110,33 +100,53 @@ export function Viewer({
     );
 
   const goTo = useCallback((i: number, behavior: ScrollBehavior = "smooth") => {
-    const el = slideEls()[i];
-    el?.scrollIntoView({ behavior, inline: "center", block: "start" });
+    slideEls()[i]?.scrollIntoView({ behavior, inline: "center", block: "start" });
   }, []);
 
   // New category (or first open): jump straight to the starting slide.
+  // startAt holds until a category switch resets it, so a repeated effect
+  // (React's dev double-run) lands on the same slide.
   useEffect(() => {
     const i = startAt.current;
-    startAt.current = 0;
-    requestAnimationFrame(() => goTo(i, "instant" as ScrollBehavior));
+    const raf = requestAnimationFrame(() =>
+      goTo(i, "instant" as ScrollBehavior)
+    );
+    return () => cancelAnimationFrame(raf);
   }, [slug, goTo]);
 
-  // Track which slide is in view.
+  // The current slide is whichever sits closest to the middle of the track
+  // (a row on desktop, a column on phones), checked once per frame.
   useEffect(() => {
     const root = trackRef.current;
     if (!root) return;
-    const io = new IntersectionObserver(
-      entries => {
-        for (const e of entries) {
-          if (e.isIntersecting) {
-            setCurrent(Number((e.target as HTMLElement).dataset.slide));
-          }
+    let raf = 0;
+    const measure = () => {
+      raf = 0;
+      const box = root.getBoundingClientRect();
+      const cx = box.left + box.width / 2;
+      const cy = box.top + box.height / 2;
+      let best = 0;
+      let bestDist = Infinity;
+      slideEls().forEach((el, i) => {
+        const r = el.getBoundingClientRect();
+        const d = Math.hypot(r.left + r.width / 2 - cx, r.top + r.height / 2 - cy);
+        if (d < bestDist) {
+          bestDist = d;
+          best = i;
         }
-      },
-      { root, threshold: 0.55 }
-    );
-    slideEls().forEach(el => io.observe(el));
-    return () => io.disconnect();
+      });
+      setCurrent(best);
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(measure);
+    };
+    root.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      root.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, [slug, slides.length]);
 
   // Keys: arrows step through, Escape closes.
@@ -159,7 +169,6 @@ export function Viewer({
     startAt.current = 0;
     setCurrent(0);
     setSlug(next);
-    trackRef.current?.scrollTo({ left: 0, top: 0 });
   };
 
   const active = slides[current];
@@ -169,7 +178,7 @@ export function Viewer({
       role="dialog"
       aria-modal="true"
       aria-label={`${category.title} — portfolio viewer`}
-      className="fixed inset-0 z-50 flex flex-col bg-black/95 text-white backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex flex-col bg-[#050505]/[0.97] text-white backdrop-blur-sm"
     >
       {/* ── Top bar ── */}
       <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3 sm:px-6">
@@ -197,8 +206,7 @@ export function Viewer({
           ))}
         </nav>
         <span className="hidden shrink-0 font-mono text-[11px] tabular-nums text-white/50 sm:block">
-          {String(Math.min(current + 1, slides.length)).padStart(2, "0")} /{" "}
-          {String(slides.length).padStart(2, "0")}
+          {pad(Math.min(current + 1, slides.length))} / {pad(slides.length)}
         </span>
         <button
           ref={closeRef}
@@ -215,43 +223,49 @@ export function Viewer({
       <div
         ref={trackRef}
         key={slug}
-        className="flex min-h-0 flex-1 snap-y snap-mandatory flex-col overflow-y-auto overscroll-contain md:snap-x md:flex-row md:items-stretch md:gap-8 md:overflow-x-auto md:overflow-y-hidden md:px-[max(1.5rem,calc(50vw-230px))] md:[scrollbar-width:thin]"
+        className="flex min-h-0 flex-1 snap-y snap-mandatory flex-col overflow-y-auto overscroll-contain md:snap-x md:flex-row md:items-center md:gap-6 md:overflow-x-auto md:overflow-y-hidden md:px-[max(1.5rem,calc(50vw-17rem))] md:[scrollbar-width:thin]"
       >
-        {slides.map((s, i) => (
-          <section
-            key={s.key}
-            data-slide={i}
-            aria-label={`${category.title} ${i + 1} of ${slides.length}`}
-            className="flex min-h-full w-full shrink-0 snap-start items-start justify-center px-4 py-6 md:h-full md:min-h-0 md:w-auto md:snap-center md:overflow-y-auto md:px-0 md:[scrollbar-width:none] md:[&::-webkit-scrollbar]:hidden"
-          >
-            {s.kind === "embed" ? (
-              <div className="w-full max-w-[460px] md:w-[460px]">
-                <SlideMeta slide={s} title={category.title} />
-                <InstagramEmbed code={s.code} width={460} lazy={false} />
-                {s.note && (
-                  <p className="mt-3 font-hand text-[22px] leading-none text-white/70">
-                    {s.note} →
-                  </p>
-                )}
-              </div>
-            ) : (
-              <figure className="flex w-full max-w-[560px] flex-col md:h-full md:w-auto md:max-w-none">
-                <SlideMeta slide={s} title={category.title} />
+        {slides.map((s, i) => {
+          const firstOfSet = i === 0 || slides[i - 1].code !== s.code;
+          return (
+            <figure
+              key={s.key}
+              data-slide={i}
+              className={`flex min-h-full w-full shrink-0 snap-start flex-col items-center justify-center px-4 py-5 md:h-full md:min-h-0 md:w-auto md:snap-center md:px-0 md:py-6 ${
+                firstOfSet && i > 0 ? "md:ml-10" : ""
+              }`}
+            >
+              <div className="w-full md:h-full md:w-auto">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={s.url}
-                  alt={`${category.title} — frame ${s.frame}`}
-                  className="w-full rounded-lg object-contain md:h-[calc(100%-5.5rem)] md:w-auto md:max-w-[min(70vw,900px)]"
+                  src={s.src}
+                  alt={`${s.title} — frame ${s.n}`}
+                  width={s.w}
+                  height={s.h}
+                  loading={Math.abs(i - start.index) < 3 ? "eager" : "lazy"}
+                  decoding="async"
+                  className="h-auto max-h-[calc(100svh-11rem)] w-full rounded-[3px] object-contain md:h-[calc(100%-3.5rem)] md:max-h-none md:w-auto md:max-w-[min(78vw,1100px)]"
                 />
-                {s.caption && (
-                  <figcaption className="mt-3 line-clamp-4 max-w-[60ch] whitespace-pre-line text-[13px] leading-relaxed text-white/65">
-                    {s.caption}
-                  </figcaption>
-                )}
-              </figure>
-            )}
-          </section>
-        ))}
+                <figcaption className="mt-3 flex items-baseline justify-between gap-4">
+                  <span className="min-w-0">
+                    <span className="font-serif text-[17px] uppercase leading-none text-white">
+                      {s.title}
+                    </span>
+                    {s.context && (
+                      <span className="mt-1 block truncate font-mono text-[10px] uppercase tracking-[0.18em] text-white/45">
+                        {s.context}
+                      </span>
+                    )}
+                  </span>
+                  <span className="shrink-0 font-mono text-[10px] tabular-nums tracking-[0.15em] text-white/45">
+                    {s.video ? "Video still · " : ""}
+                    {pad(s.n)}/{pad(s.total)}
+                  </span>
+                </figcaption>
+              </div>
+            </figure>
+          );
+        })}
 
         {/* End card: on to the next category. */}
         <section
@@ -307,31 +321,20 @@ export function Viewer({
         <p className="hidden font-serif text-[18px] uppercase text-white/80 md:block">
           {category.title}
         </p>
-        {active && (
+        {active ? (
           <a
             href={postUrl(active.code)}
             target="_blank"
             rel="noreferrer"
             className="flex items-center gap-1.5 font-mono text-[10.5px] uppercase tracking-[0.15em] text-white/60 transition-colors hover:text-white"
           >
-            Instagram <ArrowUpRight className="h-3.5 w-3.5" />
+            {active.video ? "Watch on Instagram" : "Instagram"}
+            <ArrowUpRight className="h-3.5 w-3.5" />
           </a>
+        ) : (
+          <span />
         )}
       </div>
     </div>
-  );
-}
-
-function SlideMeta({ slide, title }: { slide: Slide; title: string }) {
-  return (
-    <p className="mb-2 flex items-center justify-between gap-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white/45">
-      <span>
-        {title}
-        {slide.kind === "image" &&
-          ` · Frame ${String(slide.frame).padStart(2, "0")}/${String(slide.total).padStart(2, "0")}`}
-        {slide.kind === "image" && slide.video && " · Video still"}
-      </span>
-      {slide.credit && <span>with {slide.credit}</span>}
-    </p>
   );
 }

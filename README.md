@@ -7,19 +7,20 @@
 Same index-card / graph-paper design language as
 [gaffystudios.com](https://gaffystudios.com) and
 [gafaraleshe.com](https://www.gafaraleshe.com), on a black canvas — tuned for
-the SHOTBYGAFAR photography brand, with an embedded Instagram section for
-[@shot.by.gafar](https://www.instagram.com/shot.by.gafar/).
+the SHOTBYGAFAR photography brand, with a portfolio of sets from
+[@shot.by.gafar](https://www.instagram.com/shot.by.gafar/). Dark by default,
+with a light/dark theme tab.
 
 ## Pages
 
 | Route        | Purpose                                                   |
 | ------------ | --------------------------------------------------------- |
-| `/`          | Home — identity, what we shoot, services, Instagram, contact |
+| `/`          | Home — intro, selected work, process, services, packages, FAQ |
 | `/services`  | Disciplines, what we shoot, and how a shoot works         |
 | `/pricing`   | Packages, add-ons, and rates (links through to booking)   |
 | `/booking`   | Booking enquiry form (date, shoot type, package, details) |
 | `/contact`   | Contact form + direct channels (email, phone, WhatsApp)   |
-| `/portfolio` | Photography & film work (portraits, weddings, events)     |
+| `/portfolio` | Sets by style, with a fullscreen viewer                   |
 | `/faq`       | Bookings, pricing, delivery                               |
 | `/links`     | Every link — socials, booking, portfolio, parent studio   |
 
@@ -64,16 +65,20 @@ Hermite Flow API; the API key stays server-side behind `/api/studio`).
 
 > Legacy `INVOICEFLOW_API_URL` / `INVOICEFLOW_API_KEY` are accepted as fallbacks.
 
-## Instagram embed
+## Portfolio
 
-The home page renders an Instagram section powered by
-`components/InstagramFeed.tsx`:
+`/portfolio` (and the home page's selected work) shows sets of photos by
+style — concerts, events, birthdays, football, lifestyle, nightlife and
+brand. Each set is one Instagram post:
 
-- **Live embeds** — paste post / reel permalinks (e.g.
-  `https://www.instagram.com/p/XXXXXXXXXXX/`) into the `POSTS` array and they
-  render via Instagram's official `embed.js`.
-- **Fallback grid** — while `POSTS` is empty, a branded gallery grid + follow
-  CTA is shown, so the section never looks empty.
+- `lib/portfolio.ts` lists the sets: the post's shortcode, a title and a
+  context line taken from its caption, and optionally which slides to show.
+- The photos are WebP exports of each post's slides in
+  `public/portfolio/<shortcode>/` (`NN.webp` full size, `NN-sm.webp` for
+  grids), listed with their sizes in `lib/portfolio-media.ts`.
+- Any frame opens the fullscreen viewer
+  (`components/portfolio/Viewer.tsx`): a side-by-side carousel on desktop,
+  swipe-up on phones, with every style a tap away.
 
 ## Tech Stack
 

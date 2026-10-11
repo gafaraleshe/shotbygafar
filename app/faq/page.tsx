@@ -1,116 +1,59 @@
 "use client";
 
 /*
- * FAQ — bookings, pricing, delivery for SHOTBYGAFAR. Same filing-card system.
+ * FAQ — bookings, shoots, delivery and pricing for SHOTBYGAFAR, grouped
+ * and opened one at a time (content in components/Faq.tsx). Same sheet
+ * layout as the home page.
  */
 
-import { motion } from "framer-motion";
-import { heroRise, riseInView } from "@/components/motion";
-import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
-
-const DOTTED = {
-  backgroundImage: "radial-gradient(var(--paper-dot) 1px, transparent 1px)",
-  backgroundSize: "16px 16px",
-} as const;
-
-const faqs = [
-  {
-    q: "How do I book a shoot?",
-    a: "Email contact@shotbygafar.com or message @shot.by.gafar on Instagram with your date, location, and what you have in mind. We'll confirm availability, agree a package, and lock in your session.",
-  },
-  {
-    q: "What do you shoot?",
-    a: "Portraits, weddings, events, and brand content — photography, videography, and cinematography. If it's a story worth telling, we can shoot it.",
-  },
-  {
-    q: "Where are you based? Do you travel?",
-    a: "We're based in the United Kingdom and shoot on-location or in-studio. Travel across the UK is available — just include your location when you enquire.",
-  },
-  {
-    q: "How much does it cost?",
-    a: "Pricing depends on the type of shoot, hours of coverage, and deliverables. Get in touch with your details and we'll send a tailored quote.",
-  },
-  {
-    q: "When will I get my photos and videos?",
-    a: "Turnaround varies by project. A sneak-peek selection is often shared within days, with the full gallery or edited film delivered soon after — timelines are confirmed at booking.",
-  },
-  {
-    q: "Do you offer presets or digital products?",
-    a: "Yes — Lightroom presets and digital products are available through the wider Gaffy Studios shop. Ask us for the latest links.",
-  },
-];
+import { CalendarCheck } from "lucide-react";
+import { FaqList, faqGroups } from "@/components/Faq";
+import {
+  Section,
+  Sheet,
+  SheetIntro,
+  WHATSAPP_URL,
+} from "@/components/Sheet";
+import { WhatsAppGlyph } from "@/components/BrandIcons";
 
 export default function FAQ() {
   return (
-    <div className="min-h-screen px-4 py-6 sm:px-8 sm:py-8">
-      <SiteHeader active="/faq" />
+    <Sheet active="/faq">
+      <SheetIntro label="FAQ" title="Good to know">
+        <p>
+          Bookings, shoots, delivery and pricing. Anything not covered here,
+          just ask — I usually reply within a day.
+        </p>
+      </SheetIntro>
 
-      <main className="mx-auto max-w-2xl pb-14">
-        <motion.section
-          {...heroRise}
-          className="relative rounded-md border border-ink/10 bg-paper px-6 py-8 shadow-[0_30px_80px_-24px_rgba(0,0,0,0.55)] sm:px-10 sm:py-10"
-          style={DOTTED}
-        >
-          <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-ink-muted">
-            FAQ:
-          </p>
-          <h1 className="mt-1 font-display text-4xl font-extrabold uppercase leading-[0.95] tracking-tight text-ink sm:text-5xl">
-            Good to know
-          </h1>
-          <p className="mt-4 max-w-md font-mono text-[13px] leading-relaxed text-ink-soft">
-            Bookings, pricing, and delivery — the essentials. Still have a
-            question? Email contact@shotbygafar.com.
-          </p>
-        </motion.section>
+      <div className="mt-12 space-y-12">
+        {faqGroups.map(g => (
+          <Section key={g.title} title={g.title}>
+            <FaqList items={g.items} />
+          </Section>
+        ))}
 
-        <div className="mt-4 space-y-3">
-          {faqs.map((f, i) => (
-            <motion.div
-              {...riseInView(Math.min(i * 0.06, 0.3))}
-              key={f.q}
-              className="rounded-md border border-ink/10 bg-paper px-6 py-5 shadow-sm"
-              style={DOTTED}
-            >
-              <h2 className="font-display text-base font-bold uppercase tracking-tight text-ink">
-                {f.q}
-              </h2>
-              <p className="mt-2 font-mono text-[12px] leading-relaxed text-ink-dim">
-                {f.a}
-              </p>
-            </motion.div>
-          ))}
-        </div>
-
-        <section
-          className="relative mt-4 rounded-md border border-ink/10 bg-paper px-6 py-7 shadow-[0_30px_80px_-24px_rgba(0,0,0,0.45)] sm:px-8 sm:py-9"
-          style={DOTTED}
-        >
-          <h2 className="font-display text-2xl font-extrabold uppercase tracking-tight text-ink">
-            Still have a question?
-          </h2>
-          <p className="mt-3 font-mono text-[12px] leading-relaxed text-ink-dim">
-            We usually reply within a day.
-          </p>
-          <div className="mt-5 flex flex-wrap gap-2">
+        <Section title="Still wondering?">
+          <div className="flex flex-wrap items-center gap-2">
             <a
-              href="mailto:contact@shotbygafar.com"
-              className="rounded-md bg-ink px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wide text-paper transition-opacity hover:opacity-90"
+              href="/booking"
+              className="flex items-center gap-1.5 rounded-lg bg-ink px-3.5 py-2 text-[13.5px] font-medium text-paper transition-opacity hover:opacity-85 sm:text-[14px]"
             >
-              Email Us
+              <CalendarCheck aria-hidden className="h-[15px] w-[15px]" />
+              Book a shoot
             </a>
             <a
-              href="https://wa.me/447882655541"
+              href={WHATSAPP_URL}
               target="_blank"
               rel="noreferrer"
-              className="rounded-md border border-ink/20 bg-tile px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wide text-ink transition-colors hover:bg-tile-hover"
+              className="flex items-center gap-1.5 rounded-lg border border-ink/15 bg-tile px-3.5 py-2 text-[13.5px] font-medium text-ink transition-colors hover:bg-tile-hover sm:text-[14px]"
             >
-              WhatsApp
+              <WhatsAppGlyph size={15} />
+              Ask on WhatsApp
             </a>
           </div>
-        </section>
-
-        <SiteFooter />
-      </main>
-    </div>
+        </Section>
+      </div>
+    </Sheet>
   );
 }

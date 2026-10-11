@@ -1,334 +1,194 @@
 "use client";
 
 /*
- * Services — SHOTBYGAFAR photography / videography / cinematography, detailed.
- * Same filing-card system: dotted paper cards, mono labels, display headings.
- * Core disciplines → what we shoot → how it works → CTA.
+ * Services — what SHOTBYGAFAR shoots, built from the portfolio: each style
+ * from lib/portfolio.ts with a frame from its work, what's included, and a
+ * link to the sets. Then the disciplines, how a shoot runs, and packages.
+ * Same sheet layout as the home page.
  */
 
-import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
+import { CalendarCheck } from "lucide-react";
 import {
-  ArrowUpRight,
-  Camera,
-  Clapperboard,
-  Film,
-  Sparkles,
-} from "lucide-react";
-import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
-
-const DOTTED = {
-  backgroundImage: "radial-gradient(var(--paper-dot) 1px, transparent 1px)",
-  backgroundSize: "16px 16px",
-} as const;
-
-const disciplines = [
-  {
-    Icon: Camera,
-    title: "Photography",
-    blurb:
-      "Portraits, products, weddings, and events with a cinematic, story-first eye — shot and retouched in-house.",
-    includes: [
-      "Studio & on-location sessions",
-      "Colour grading + retouching",
-      "High-res gallery delivery",
-    ],
-  },
-  {
-    Icon: Film,
-    title: "Videography",
-    blurb:
-      "Brand films, event coverage, and social content — filmed and edited end to end, delivered ready to post.",
-    includes: [
-      "Brand & promo films",
-      "Event & highlight coverage",
-      "Vertical social edits",
-    ],
-  },
-  {
-    Icon: Clapperboard,
-    title: "Cinematography",
-    blurb:
-      "Cinematic direction, lighting, and colour grading for weddings, music videos, and creative films.",
-    includes: [
-      "Wedding films",
-      "Music videos",
-      "Creative direction + grade",
-    ],
-  },
-];
-
-const shoots = [
-  {
-    name: "Portraits",
-    subtitle: "People · Studio · Lifestyle",
-    description:
-      "Bold, authentic portraits that feel like you — studio, on-location, and lifestyle sessions for individuals, creatives, and brands.",
-    tags: ["Studio", "On-Location", "Editorial"],
-  },
-  {
-    name: "Weddings",
-    subtitle: "Cinematic Films · Photography",
-    description:
-      "Cinematic wedding films and photography that capture the day as it felt — vows, first dances, and the in-between moments, edited to a story.",
-    tags: ["Films", "Photography", "Highlights"],
-  },
-  {
-    name: "Events",
-    subtitle: "Coverage · Highlight Reels",
-    description:
-      "Full coverage for parties, conferences, and live shows — delivered as photo galleries and highlight reels built to relive the night.",
-    tags: ["Live Shows", "Parties", "Corporate"],
-  },
-  {
-    name: "Brand Content",
-    subtitle: "Product · Promo · Social",
-    description:
-      "Product films, promos, and social-first content for brands and small businesses — striking visuals built to convert.",
-    tags: ["Product", "Promo", "Social"],
-  },
-];
-
-const process = [
-  {
-    step: "01",
-    title: "Enquire",
-    detail:
-      "Tell us the date, location, and what you have in mind. We confirm availability within a day.",
-  },
-  {
-    step: "02",
-    title: "Plan",
-    detail:
-      "We agree a package, shot list, and timeline — and lock in your session with a deposit.",
-  },
-  {
-    step: "03",
-    title: "Shoot",
-    detail:
-      "On the day we direct, light, and capture — relaxed, efficient, and fully hands-on.",
-  },
-  {
-    step: "04",
-    title: "Deliver",
-    detail:
-      "A sneak-peek lands within days, with the full edited gallery or film delivered soon after.",
-  },
-];
-
-function Reveal({
-  children,
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  delay?: number;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-60px" });
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 24 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-function SectionCard({
-  id,
-  label,
-  title,
-  children,
-}: {
-  id?: string;
-  label: string;
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <Reveal>
-      <section
-        id={id}
-        className="relative mt-4 scroll-mt-6 rounded-md border border-ink/10 bg-paper px-6 py-7 shadow-[0_30px_80px_-24px_rgba(0,0,0,0.45)] sm:px-8 sm:py-9"
-        style={DOTTED}
-      >
-        <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-ink-muted">
-          {label}
-        </p>
-        <h2 className="mb-6 mt-1 font-display text-2xl font-extrabold uppercase tracking-tight text-ink sm:text-3xl">
-          {title}
-        </h2>
-        {children}
-      </section>
-    </Reveal>
-  );
-}
+  HowItWorks,
+  Section,
+  SectionLink,
+  Sheet,
+  SheetIntro,
+  WHATSAPP_URL,
+  softRise,
+} from "@/components/Sheet";
+import { WhatsAppGlyph } from "@/components/BrandIcons";
+import { framesOf, portfolio } from "@/lib/portfolio";
+import { disciplines, styleDetails } from "@/lib/services";
 
 export default function Services() {
   return (
-    <div className="min-h-screen px-4 py-6 sm:px-8 sm:py-8">
-      <SiteHeader active="/services" />
+    <Sheet active="/services">
+      <SheetIntro label="Services" title="What I shoot">
+        <p>
+          Everything here is something I&apos;ve shot — concerts, events,
+          birthdays, football, lifestyle, nightlife and brand work. Each style
+          below links to the sets, so you can see exactly what you&apos;d get.
+        </p>
+      </SheetIntro>
 
-      <main className="mx-auto max-w-2xl pb-14">
-        {/* ── Hero ── */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="relative rounded-md border border-ink/10 bg-paper px-6 py-8 shadow-[0_30px_80px_-24px_rgba(0,0,0,0.55)] sm:px-10 sm:py-10"
-          style={DOTTED}
+      <motion.div
+        {...softRise(0.08)}
+        className="mt-7 flex flex-wrap items-center gap-2"
+      >
+        <a
+          href="/booking"
+          className="flex items-center gap-1.5 rounded-lg bg-ink px-3.5 py-2 text-[13.5px] font-medium text-paper transition-opacity hover:opacity-85 sm:text-[14px]"
         >
-          <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-ink-muted">
-            Services:
-          </p>
-          <h1 className="mt-1 font-display text-4xl font-extrabold uppercase leading-[0.95] tracking-tight text-ink sm:text-5xl">
-            What we do
-          </h1>
-          <p className="mt-4 max-w-md font-mono text-[13px] leading-relaxed text-ink-soft">
-            Photography, videography, and cinematography for portraits,
-            weddings, events, and brands across the UK — from the first frame
-            to the final grade, handled in-house.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-2">
-            <a
-              href="/booking"
-              className="rounded-md bg-ink px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-wide text-paper transition-opacity hover:opacity-90"
-            >
-              Book a Shoot
-            </a>
-            <a
-              href="/pricing"
-              className="rounded-md border border-ink/20 bg-tile px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-wide text-ink transition-colors hover:bg-tile-hover"
-            >
-              View Pricing
-            </a>
-          </div>
-        </motion.section>
+          <CalendarCheck aria-hidden className="h-[15px] w-[15px]" />
+          Book a shoot
+        </a>
+        <a
+          href={WHATSAPP_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center gap-1.5 rounded-lg border border-ink/15 bg-tile px-3.5 py-2 text-[13.5px] font-medium text-ink transition-colors hover:bg-tile-hover sm:text-[14px]"
+        >
+          <WhatsAppGlyph size={15} />
+          WhatsApp
+        </a>
+      </motion.div>
 
-        {/* ── Core disciplines ── */}
-        <SectionCard id="disciplines" label="Core:" title="Disciplines">
-          <div className="space-y-6">
-            {disciplines.map((d, i) => (
-              <div
-                key={d.title}
-                className={
-                  i > 0
-                    ? "border-t border-dashed border-ink/15 pt-6"
-                    : ""
-                }
-              >
-                <div className="flex items-start gap-4">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-ink text-paper">
-                    <d.Icon className="h-5 w-5" />
-                  </span>
-                  <div className="min-w-0">
-                    <h3 className="font-display text-lg font-bold uppercase tracking-tight text-ink">
-                      {d.title}
-                    </h3>
-                    <p className="mt-1 font-mono text-[12px] leading-relaxed text-ink-dim">
-                      {d.blurb}
-                    </p>
-                    <ul className="mt-3 flex flex-wrap gap-1.5">
-                      {d.includes.map(item => (
-                        <li
-                          key={item}
-                          className="rounded border border-ink/15 px-2 py-0.5 font-mono text-[10px] text-ink-dim"
+      <div className="mt-12 space-y-12">
+        {/* ── Styles, from the portfolio ── */}
+        <Section
+          id="styles"
+          title="Styles"
+          action={<SectionLink href="/portfolio">Portfolio</SectionLink>}
+        >
+          <ol className="divide-y divide-ink/10 border-y border-ink/10">
+            {portfolio.map((c, i) => {
+              const cover = framesOf(c.posts[0])[0];
+              const detail = styleDetails[c.slug];
+              return (
+                <li key={c.slug} id={c.slug} className="scroll-mt-16">
+                  <a
+                    href={`/portfolio#${c.slug}`}
+                    className="group flex gap-4 py-5 sm:gap-5"
+                  >
+                    <span className="relative block w-20 shrink-0 overflow-hidden rounded-[3px] bg-[#0a0a0a] sm:w-24">
+                      {cover && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={cover.sm}
+                          alt=""
+                          width={cover.w}
+                          height={cover.h}
+                          loading="lazy"
+                          className="aspect-[4/5] h-auto w-full object-cover transition duration-700 group-hover:scale-[1.05]"
+                        />
+                      )}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-baseline justify-between gap-3">
+                        <span className="text-[15px] font-medium text-ink">
+                          <span className="mr-2 font-mono text-[11.5px] text-ink-faint">
+                            {String(i + 1).padStart(2, "0")}
+                          </span>
+                          {c.title}
+                        </span>
+                        <span className="shrink-0 font-mono text-[12px] text-ink-dim">
+                          {detail?.from ? (
+                            <>
+                              <span className="text-ink-faint">from </span>
+                              {detail.from}
+                            </>
+                          ) : (
+                            <span className="text-ink-faint">quoted</span>
+                          )}
+                        </span>
+                      </span>
+                      <span className="mt-1 block text-[13.5px] leading-relaxed text-ink-dim">
+                        {c.blurb}
+                      </span>
+                      {detail && (
+                        <span className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
+                          {detail.includes.map(item => (
+                            <span
+                              key={item}
+                              className="font-mono text-[11px] tracking-[0.02em] text-ink-muted before:mr-1.5 before:text-ink-faint before:content-['–']"
+                            >
+                              {item}
+                            </span>
+                          ))}
+                        </span>
+                      )}
+                      <span className="mt-2 inline-flex items-center gap-1 text-[12.5px] text-ink-muted transition-colors group-hover:text-ink">
+                        See the work
+                        <span
+                          aria-hidden
+                          className="transition-transform duration-300 group-hover:translate-x-0.5"
                         >
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </SectionCard>
+                          →
+                        </span>
+                      </span>
+                    </span>
+                  </a>
+                </li>
+              );
+            })}
+          </ol>
+        </Section>
 
-        {/* ── What we shoot ── */}
-        <SectionCard id="shoots" label="Work:" title="What we shoot">
-          <div className="grid gap-3 sm:grid-cols-2">
-            {shoots.map(s => (
+        {/* ── Disciplines ── */}
+        <Section id="disciplines" title="Disciplines">
+          <dl className="space-y-3">
+            {disciplines.map(([discipline, items]) => (
               <div
-                key={s.name}
-                className="rounded-md border border-ink/10 bg-tile p-5 shadow-sm"
+                key={discipline}
+                className="flex flex-col gap-1.5 sm:flex-row sm:items-baseline sm:gap-5"
               >
-                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-faint">
-                  {s.subtitle}
-                </p>
-                <h3 className="font-display text-lg font-bold uppercase tracking-tight text-ink">
-                  {s.name}
-                </h3>
-                <p className="mt-2 font-mono text-[12px] leading-relaxed text-ink-dim">
-                  {s.description}
-                </p>
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {s.tags.map(tag => (
+                <dt className="w-28 shrink-0 text-[13px] text-ink-muted sm:text-[13.5px]">
+                  {discipline}
+                </dt>
+                <dd className="flex flex-wrap gap-x-3 gap-y-2">
+                  {items.map(([item, Icon]) => (
                     <span
-                      key={tag}
-                      className="rounded border border-ink/15 px-2 py-0.5 font-mono text-[10px] text-ink-dim"
+                      key={item}
+                      className="flex items-center gap-1.5 text-[13px] text-ink-dim sm:text-[14px]"
                     >
-                      {tag}
+                      <Icon
+                        aria-hidden
+                        strokeWidth={2}
+                        className="size-[15px] shrink-0 text-ink-muted"
+                      />
+                      {item}
                     </span>
                   ))}
-                </div>
+                </dd>
               </div>
             ))}
-          </div>
-        </SectionCard>
+          </dl>
+        </Section>
 
-        {/* ── How it works ── */}
-        <SectionCard id="process" label="Process:" title="How it works">
-          <div className="grid gap-3 sm:grid-cols-2">
-            {process.map(p => (
-              <div
-                key={p.step}
-                className="rounded-md border border-ink/10 bg-tile p-5 shadow-sm"
-              >
-                <p className="font-display text-2xl font-extrabold tracking-tight text-ink/25">
-                  {p.step}
-                </p>
-                <h3 className="mt-1 font-display text-base font-bold uppercase tracking-tight text-ink">
-                  {p.title}
-                </h3>
-                <p className="mt-1.5 font-mono text-[12px] leading-relaxed text-ink-dim">
-                  {p.detail}
-                </p>
-              </div>
-            ))}
-          </div>
-        </SectionCard>
+        <HowItWorks />
 
-        {/* ── CTA ── */}
-        <Reveal>
-          <a
-            href="/booking"
-            className="group mt-4 flex items-center justify-between gap-3 rounded-md border border-ink/10 bg-paper px-6 py-6 shadow-[0_30px_80px_-24px_rgba(0,0,0,0.45)] transition-colors hover:bg-[#efeee6]"
-            style={DOTTED}
-          >
-            <div>
-              <p className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-ink-muted">
-                <Sparkles className="h-3.5 w-3.5" />
-                Ready when you are
-              </p>
-              <p className="mt-1 font-display text-xl font-extrabold uppercase tracking-tight text-ink">
-                Book your shoot
-              </p>
-              <p className="font-mono text-[11px] text-ink-dim">
-                Tell us the date and vision — we reply within a day.
-              </p>
-            </div>
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink/25 text-ink transition-colors group-hover:bg-ink group-hover:text-paper">
-              <ArrowUpRight className="h-4 w-4" />
-            </span>
-          </a>
-        </Reveal>
-
-        <SiteFooter />
-      </main>
-    </div>
+        {/* ── Next steps ── */}
+        <Section
+          id="next"
+          title="Prices & questions"
+          action={<SectionLink href="/faq">FAQ</SectionLink>}
+        >
+          <p className="text-[14px] leading-relaxed text-ink-dim sm:text-[14.5px]">
+            Packages start at £150 for a portrait session, with add-ons like a
+            second shooter, rush delivery and prints.{" "}
+            <a href="/pricing" className="link">
+              See full pricing
+            </a>
+            , or{" "}
+            <a href="/booking" className="link">
+              send an enquiry
+            </a>{" "}
+            and I&apos;ll come back with a quote within a day.
+          </p>
+        </Section>
+      </div>
+    </Sheet>
   );
 }

@@ -6,6 +6,7 @@
  * both themes, so the white type always reads) — tuned for SHOTBYGAFAR.
  */
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { NameReveal, fadeIn } from "@/components/motion";
 
@@ -30,12 +31,12 @@ export function SiteHeader({
       {...fadeIn(0.15)}
       className={`mx-auto mb-8 flex ${width} flex-wrap items-center justify-between gap-x-2 gap-y-2 px-1 sm:mb-10`}
     >
-      <a
+      <Link
         href="/"
         className="font-mono text-sm font-semibold uppercase tracking-[0.2em] text-white"
       >
         <NameReveal lines={["SHOTBYGAFAR"]} delay={1.3} stagger={0.04} blur={4} />
-      </a>
+      </Link>
       <nav className="flex flex-wrap items-center justify-end gap-x-1 gap-y-1">
         {NAV.filter(n => n.href !== active).map(n => (
           <a
