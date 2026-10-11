@@ -8,7 +8,7 @@
 import type { ReactNode } from "react";
 
 const fieldBase =
-  "w-full rounded-md border border-neutral-900/15 bg-white px-3 py-2.5 font-mono text-[13px] text-neutral-900 outline-none transition-colors placeholder:text-neutral-400 focus:border-neutral-900/50 focus:ring-2 focus:ring-neutral-900/10 disabled:opacity-60";
+  "w-full rounded-md border border-ink/15 bg-tile px-3 py-2.5 font-mono text-[13px] text-ink outline-none transition-colors placeholder:text-ink-faint focus:border-ink/50 focus:ring-2 focus:ring-ink/10 disabled:opacity-60";
 
 export function Label({
   htmlFor,
@@ -22,10 +22,10 @@ export function Label({
   return (
     <label
       htmlFor={htmlFor}
-      className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-500"
+      className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.2em] text-ink-muted"
     >
       {children}
-      {required && <span className="ml-1 text-rose-600">*</span>}
+      {required && <span className="ml-1 text-rose-600 dark:text-rose-400">*</span>}
     </label>
   );
 }
@@ -33,7 +33,7 @@ export function Label({
 export function FieldError({ message }: { message?: string }) {
   if (!message) return null;
   return (
-    <p className="mt-1 font-mono text-[11px] text-rose-600">{message}</p>
+    <p className="mt-1 font-mono text-[11px] text-rose-600 dark:text-rose-400">{message}</p>
   );
 }
 

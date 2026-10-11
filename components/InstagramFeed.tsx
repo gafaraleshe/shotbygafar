@@ -1,7 +1,8 @@
 "use client";
 
 /*
- * Instagram section for SHOTBYGAFAR (@shot.by.gafar).
+ * Instagram section for SHOTBYGAFAR (@shot.by.gafar). Renders the section's
+ * contents only; the home page supplies the heading.
  *
  * Pulls the latest posts automatically from `/api/instagram` (backed by the
  * Instagram Graph API — see lib/instagram.ts). When a token is configured the
@@ -24,11 +25,6 @@ type IgPost = {
   type: string;
 };
 
-const DOTTED = {
-  backgroundImage: "radial-gradient(rgba(0,0,0,0.07) 1px, transparent 1px)",
-  backgroundSize: "16px 16px",
-} as const;
-
 // Gradient tiles for the fallback grid — cinematic, on-brand, and shown until
 // the live feed loads (or if no token is configured yet).
 const TILES = [
@@ -42,14 +38,14 @@ const TILES = [
 
 function PostGrid({ posts }: { posts: IgPost[] }) {
   return (
-    <div className="grid grid-cols-3 gap-1 overflow-hidden rounded-md border border-neutral-900/10 bg-neutral-900/10 p-1">
+    <div className="grid grid-cols-3 gap-2">
       {posts.slice(0, 6).map(p => (
         <a
           key={p.id}
           href={p.permalink}
           target="_blank"
           rel="noreferrer"
-          className="group relative block aspect-square overflow-hidden bg-neutral-200"
+          className="group relative block aspect-square overflow-hidden rounded-lg border border-ink/10 bg-tile"
           title={p.caption?.slice(0, 120) || HANDLE}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -57,8 +53,9 @@ function PostGrid({ posts }: { posts: IgPost[] }) {
             src={p.image}
             alt={p.caption?.slice(0, 80) || `Post by ${HANDLE}`}
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
           />
+          {/* Hover scrim over the photo: stays dark in both themes. */}
           <span className="absolute inset-0 flex items-center justify-center bg-neutral-900/0 text-white opacity-0 transition-all group-hover:bg-neutral-900/40 group-hover:opacity-100">
             <InstagramIcon />
           </span>
@@ -74,37 +71,32 @@ function FallbackGrid() {
       href={INSTAGRAM_URL}
       target="_blank"
       rel="noreferrer"
-      className="group block overflow-hidden rounded-md border border-neutral-900/10"
+      className="group block"
       aria-label={`Open ${HANDLE} on Instagram`}
     >
-      <div className="grid grid-cols-3 gap-1 bg-neutral-900/10 p-1">
+      <div className="grid grid-cols-3 gap-2">
         {TILES.map((t, i) => (
           <div
             key={i}
-            className={`relative flex aspect-square items-center justify-center bg-gradient-to-br ${t} transition-transform group-hover:scale-[1.02]`}
+            className={`relative flex aspect-square items-center justify-center overflow-hidden rounded-lg border border-ink/10 bg-gradient-to-br ${t} transition-transform duration-500 group-hover:scale-[0.98]`}
           >
-            <InstagramIconLarge />
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              strokeOpacity="0.55"
+              strokeWidth="1.5"
+              aria-hidden
+              className="h-7 w-7"
+            >
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+              <path d="M12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8z" />
+              <circle cx="17.5" cy="6.5" r="1.5" />
+            </svg>
           </div>
         ))}
       </div>
     </a>
-  );
-}
-
-function InstagramIconLarge() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="white"
-      strokeOpacity="0.55"
-      strokeWidth="1.5"
-      className="h-7 w-7"
-    >
-      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-      <path d="M12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8z" />
-      <circle cx="17.5" cy="6.5" r="1.5" />
-    </svg>
   );
 }
 
@@ -129,52 +121,13 @@ export function InstagramFeed() {
   const hasPosts = posts !== null && posts.length > 0;
 
   return (
-    <section
-      id="instagram"
-      className="relative mt-4 scroll-mt-6 rounded-md border border-neutral-900/10 bg-[#f4f3ec] px-6 py-7 shadow-[0_30px_80px_-24px_rgba(0,0,0,0.45)] sm:px-8 sm:py-9"
-      style={DOTTED}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-neutral-500">
-            Instagram:
-          </p>
-          <h2 className="mb-1 mt-1 font-display text-2xl font-extrabold uppercase tracking-tight text-neutral-900 sm:text-3xl">
-            Latest on the grid
-          </h2>
-        </div>
-        <a
-          href={INSTAGRAM_URL}
-          target="_blank"
-          rel="noreferrer"
-          className="flex shrink-0 items-center gap-1.5 rounded-md bg-neutral-900 px-3.5 py-2 font-mono text-[11px] font-semibold uppercase tracking-wide text-white transition-opacity hover:opacity-90"
-        >
-          <InstagramIcon />
-          Follow
-        </a>
-      </div>
-
-      <p className="mb-5 max-w-md font-mono text-[12px] leading-relaxed text-neutral-600">
-        New shoots and reels go up on Instagram first. Follow {HANDLE} for the
-        latest portraits, weddings, events, and behind-the-scenes.
-      </p>
-
+    <div>
       {hasPosts ? <PostGrid posts={posts!} /> : <FallbackGrid />}
-
-      <div className="mt-1 flex items-center justify-between gap-2 rounded-b-md bg-white px-4 py-3">
-        <span className="flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-wide text-neutral-900">
-          <InstagramIcon />
-          {HANDLE}
-        </span>
-        <a
-          href={INSTAGRAM_URL}
-          target="_blank"
-          rel="noreferrer"
-          className="font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-500 transition-colors hover:text-neutral-900"
-        >
-          View feed →
-        </a>
-      </div>
-    </section>
+      <p className="mt-3 font-mono text-[11.5px] tracking-[0.02em] text-ink-muted">
+        New shoots, behind-the-scenes and edits go up on Instagram first.
+      </p>
+    </div>
   );
 }
+
+export const INSTAGRAM_PROFILE = { url: INSTAGRAM_URL, handle: HANDLE };
