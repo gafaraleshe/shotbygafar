@@ -37,14 +37,18 @@ export const softRise = (delay = 0): MotionProps => ({
 /** Page chrome plus the sheet itself, closed by the contact footer. */
 export function Sheet({
   active,
+  hero,
   children,
 }: {
   active: string;
+  /** Full-width content between the site header and the sheet. */
+  hero?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
     <div className="min-h-screen px-4 py-5 sm:px-8 sm:py-8">
       <SiteHeader active={active} width={SHEET_WIDTH} />
+      {hero}
 
       <main
         className={`relative mx-auto ${SHEET_WIDTH} rounded-xl border border-ink/10 bg-paper px-5 pb-8 pt-12 shadow-[0_30px_80px_-24px_rgba(0,0,0,0.6)] sm:px-12 sm:pb-10 sm:pt-16`}

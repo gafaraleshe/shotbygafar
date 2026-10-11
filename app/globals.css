@@ -143,6 +143,28 @@ html {
   }
 }
 
+/* Hero carousel: the bar fills over one slide; its end advances the slide,
+   so pausing the animation pauses the carousel too. */
+@keyframes hero-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.hero-progress {
+  transform-origin: left;
+  animation: hero-progress linear forwards;
+}
+/* No autoplay for visitors who ask for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-progress {
+    animation: none;
+    transform: scaleX(0);
+  }
+}
+
 /* Custom selection color */
 ::selection {
   background: #f4f3ec;

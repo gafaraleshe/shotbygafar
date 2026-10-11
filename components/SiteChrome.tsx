@@ -14,6 +14,7 @@ const NAV = [
   { label: "Services", href: "/services" },
   { label: "Pricing", href: "/pricing" },
   { label: "Portfolio", href: "/portfolio" },
+  { label: "Shop", href: "/shop" },
   { label: "Contact", href: "/contact" },
   { label: "FAQ", href: "/faq" },
 ] as const;
@@ -64,6 +65,7 @@ export function SiteFooter({ width = "max-w-2xl" }: { width?: string }) {
     { label: "Services", href: "/services" },
     { label: "Pricing", href: "/pricing" },
     { label: "Booking", href: "/booking" },
+    { label: "Shop", href: "/shop" },
     { label: "Contact", href: "/contact" },
     { label: "FAQ", href: "/faq" },
     { label: "All Links →", href: "/links" },

@@ -114,9 +114,7 @@ export const faqGroups: { title: string; items: QA[] }[] = [
           <>
             Yes — the colour grades I use are in the{" "}
             <a
-              href="https://www.gafaraleshe.com/cinema/shop"
-              target="_blank"
-              rel="noreferrer"
+              href="/shop"
               className="link"
             >
               LUT &amp; preset shop

@@ -96,7 +96,7 @@ const features = [
   {
     label: "Presets & Colour Grades",
     description: "Lightroom presets & LUTs via Gaffy Studios",
-    href: "https://gaffystudios.com/shop",
+    href: "/shop",
     Icon: PaletteIcon,
   },
   {

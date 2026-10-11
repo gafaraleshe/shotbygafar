@@ -4,8 +4,9 @@
  * Home — laid out like gafaraleshe.com (after pysavant.cv), tuned for the
  * photography side: one narrow sheet over the graph-paper grid with a name
  * and profile row, a few plain paragraphs, then quiet labelled sections.
- * The work sits in a dark lightbox inside the sheet, styled like the
- * portfolio, and opens the same fullscreen viewer.
+ * It opens on a coverflow carousel of standout frames above the sheet; the
+ * work sits in a dark lightbox inside the sheet, styled like the portfolio,
+ * and both open the same fullscreen viewer.
  */
 
 import { useState } from "react";
@@ -30,6 +31,7 @@ import {
   softRise,
 } from "@/components/Sheet";
 import { FaqList, faqGroups } from "@/components/Faq";
+import { HeroCarousel } from "@/components/HeroCarousel";
 import { SetCard } from "@/components/portfolio/Sets";
 import { Viewer, buildSlides } from "@/components/portfolio/Viewer";
 import { disciplines } from "@/lib/services";
@@ -158,7 +160,7 @@ export default function Home() {
   };
 
   return (
-    <Sheet active="/">
+    <Sheet active="/" hero={<HeroCarousel onOpen={openAt} />}>
       {/* ── Header ── */}
       <header>
         <motion.div
@@ -260,9 +262,7 @@ export default function Home() {
             . The grades I use are in the{" "}
             <a
               className="link"
-              href="https://www.gafaraleshe.com/cinema/shop"
-              target="_blank"
-              rel="noreferrer"
+              href="/shop"
             >
               LUT &amp; preset shop
             </a>
